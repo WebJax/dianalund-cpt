@@ -27,6 +27,8 @@ You should have received a copy of the GNU General Public License
 along with dianalund-cpt. If not, see {URI to Plugin License}.
 */
 
+require_once dirname( __FILE__ ) . '/includes/functions-cvr-sync.php';
+
 function dianalund_cpt_setup_post_types()
 {
     // register the three custom post type
