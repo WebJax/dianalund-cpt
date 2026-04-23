@@ -1,0 +1,168 @@
+.erhvervsliste {
+/*  width: 48%; */
+  box-shadow: 0px 0px 10px -5px #000;
+  height: 300px;
+  position: relative;
+  margin: 5px;
+  box-sizing: border-box;
+/*  float: left; */
+  border: 1px solid #eee;
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+  -webkit-transition: all 100ms ease-in-out;
+  -moz-transition: all 100ms ease-in-out;  
+  -ms-transition: all 100ms ease-in-out;
+  transition: all 100ms ease-in-out;
+}
+
+.erhvervsliste:hover {
+  -webkit-transform: scale(1.01);
+  -moz-transform: scale(1.01);
+  -ms-transform: scale(1.01);
+  transform: scale(1.01);
+}
+
+.erhvervsliste-kontakt {
+  padding: 10px 5px;
+  color: #000;
+}
+
+.erhvervsliste-kontakt h5 {
+  padding: 10px 5px;
+}
+
+.erhvervsliste-thumbnail {
+  padding: 0px;
+  height: 125px;
+  background-color: #bf0d04;
+  overflow: hidden;
+}
+
+.erhvervsliste-thumbnail img {
+  height: 100%;
+}
+
+.erhvervsliste-adresse, .erhvervsliste-postnrby {
+  padding: 0px 5px;
+  margin-top: -30px;
+}
+
+/* Dianalund CPT Display Block Styles */
+.dianalund-cpt-display {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 300px;
+    margin: 20px auto;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Main link styling for logo + navn */
+.dianalund-cpt-display .cpt-main-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.3s ease;
+}
+
+.dianalund-cpt-display .cpt-main-link:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+.dianalund-cpt-display .cpt-main-link:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.dianalund-cpt-display .cpt-logo {
+    margin-bottom: 15px;
+}
+
+.dianalund-cpt-display .cpt-logo img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+}
+
+.dianalund-cpt-display .cpt-name {
+    margin: 15px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #333;
+}
+
+.dianalund-cpt-display .cpt-main-link:hover .cpt-name {
+    color: #0073aa;
+}
+
+.dianalund-cpt-display .cpt-social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.dianalund-cpt-display .social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    text-decoration: none !important;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    border-radius: 4px;
+    /* Ingen baggrundsfarve - kun SVG ikoner */
+}
+
+.dianalund-cpt-display .social-icon:hover {
+    transform: translateY(-2px);
+    opacity: 0.8;
+    text-decoration: none !important;
+}
+
+.dianalund-cpt-display .social-icon:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* SVG ikoner styling */
+.dianalund-cpt-display .social-icon svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+.dianalund-cpt-display .social-icon:hover svg {
+    transform: scale(1.1);
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .dianalund-cpt-display {
+        max-width: 100%;
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .dianalund-cpt-display .cpt-logo img {
+        max-width: 120px;
+    }
+    
+    .dianalund-cpt-display .social-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .dianalund-cpt-display .social-icon .dashicons {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+}

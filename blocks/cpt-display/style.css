@@ -1,0 +1,177 @@
+/* Dianalund CPT Display Block Styles */
+.dianalund-cpt-display {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 300px;
+    margin: 0 auto;
+    background-color: #fff;
+}
+
+/* Main link styling for logo + navn */
+.cpt-main-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.3s ease;
+}
+
+.cpt-main-link:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+.cpt-main-link:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.cpt-logo img {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.cpt-name {
+    margin: 10px 0;
+    font-size: 1.2em;
+    color: inherit;
+}
+
+.cpt-main-link .cpt-name {
+    color: #333;
+}
+
+.cpt-main-link:hover .cpt-name {
+    color: #0073aa;
+}
+
+.cpt-social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    border-radius: 4px;
+}
+
+.social-icon:hover {
+    transform: translateY(-2px);
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+.social-icon:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* Social icons */
+#facebook:after {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 26 26"><path d="M23.214,2.25H2.786A2.786,2.786,0,0,0,0,5.036V25.464A2.786,2.786,0,0,0,2.786,28.25h7.965V19.411H7.095V15.25h3.656V12.079c0-3.607,2.147-5.6,5.436-5.6a22.15,22.15,0,0,1,3.222.281V10.3H17.595a2.08,2.08,0,0,0-2.346,2.248v2.7h3.992L18.6,19.411H15.249V28.25h7.965A2.786,2.786,0,0,0,26,25.464V5.036A2.786,2.786,0,0,0,23.214,2.25Z" transform="translate(0 -2.25)" fill="%23fff"/></svg>');
+  position: relative;
+  top: 10px;
+  left: 10px;
+}
+
+#linkedin:after {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 26 26"><path d="M22.151,22.156H18.3V16.123c0-1.439-.029-3.29-2.006-3.29-2.007,0-2.314,1.565-2.314,3.184v6.139H10.13V9.75h3.7v1.691h.05a4.057,4.057,0,0,1,3.651-2c3.9,0,4.623,2.568,4.623,5.91v6.81ZM5.782,8.052A2.236,2.236,0,1,1,8.018,5.815,2.234,2.234,0,0,1,5.782,8.052Zm1.931,14.1H3.851V9.75H7.712ZM24.077,0H1.919A1.9,1.9,0,0,0,0,1.873V24.127A1.9,1.9,0,0,0,1.919,26H24.074A1.9,1.9,0,0,0,26,24.127V1.873A1.9,1.9,0,0,0,24.074,0Z" fill="%23fff"/></svg>');
+  position: relative;
+  top: 10px;
+  left: 10px;
+}
+
+#mail:after {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 34.667 26"><path d="M34.01,13.085a.408.408,0,0,1,.657.318V27.25a3.251,3.251,0,0,1-3.25,3.25H3.25A3.251,3.251,0,0,1,0,27.25V13.41a.4.4,0,0,1,.657-.318c1.517,1.178,3.528,2.674,10.434,7.692,1.429,1.043,3.839,3.236,6.243,3.223,2.417.02,4.875-2.221,6.249-3.223C30.489,15.767,32.493,14.264,34.01,13.085ZM17.333,21.833c1.571.027,3.832-1.977,4.97-2.8,8.985-6.52,9.669-7.089,11.741-8.714a1.62,1.62,0,0,0,.623-1.28V7.75a3.251,3.251,0,0,0-3.25-3.25H3.25A3.251,3.251,0,0,0,0,7.75V9.036a1.63,1.63,0,0,0,.623,1.28c2.072,1.618,2.756,2.194,11.741,8.714C13.5,19.856,15.762,21.86,17.333,21.833Z" transform="translate(0 -4.5)" fill="%23fff"/></svg>');
+  position: relative;
+  top: 10px;
+  left: 10px;
+}
+
+#instagram:after {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26"><path d="M13,8.572a6.666,6.666,0,1,0,6.665,6.666A6.655,6.655,0,0,0,13,8.572Zm0,11a4.334,4.334,0,1,1,4.333-4.334A4.341,4.341,0,0,1,13,19.572ZM21.489,8.3a1.554,1.554,0,1,1-1.554-1.555A1.551,1.551,0,0,1,21.489,8.3ZM25.9,9.877a7.7,7.7,0,0,0-2.1-5.448,7.742,7.742,0,0,0-5.447-2.1c-2.146-.122-8.579-.122-10.725,0A7.731,7.731,0,0,0,2.186,4.423a7.721,7.721,0,0,0-2.1,5.448c-.122,2.147-.122,8.581,0,10.727a7.7,7.7,0,0,0,2.1,5.448,7.752,7.752,0,0,0,5.447,2.1c2.146.122,8.579.122,10.725,0a7.692,7.692,0,0,0,5.447-2.1A7.746,7.746,0,0,0,25.9,20.6c.122-2.147.122-8.575,0-10.721ZM23.131,22.9a4.387,4.387,0,0,1-2.471,2.471c-1.711.679-5.771.522-7.662.522s-5.957.151-7.662-.522A4.387,4.387,0,0,1,2.864,22.9c-.679-1.711-.522-5.773-.522-7.664s-.151-5.958.522-7.664A4.387,4.387,0,0,1,5.335,5.1C7.046,4.423,11.107,4.58,13,4.58s5.957-.151,7.662.522a4.387,4.387,0,0,1,2.471,2.471c.679,1.711.522,5.773.522,7.664S23.809,21.2,23.131,22.9Z" transform="translate(0.005 -2.238)"/></svg>');
+  position: relative;
+  top: 10px;
+  left: 10px;
+}
+
+#www:after {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" viewBox="0 0 29 29"><g id="Icon_feather-globe" data-name="Icon feather-globe" transform="translate(-1.5 -1.5)"><path id="Path_134" data-name="Path 134" d="M29,16A13,13,0,1,1,16,3,13,13,0,0,1,29,16Z" fill="none" stroke="%23000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/><path id="Path_135" data-name="Path 135" d="M3,18H29" transform="translate(0 -2)" fill="none" stroke="%23000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/><path id="Path_136" data-name="Path 136" d="M18,3a18.555,18.555,0,0,1,6,13,18.555,18.555,0,0,1-6,13,18.555,18.555,0,0,1-6-13A18.555,18.555,0,0,1,18,3Z" transform="translate(-2)" fill="none" stroke="%23000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/></g></svg>');
+  position: relative;
+  top: 10px;
+  left: 10px;
+}
+
+/* Ikoner uden baggrundsfarve - bruger kun farvet ikon */
+.social-icon .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.social-icon.facebook .dashicons {
+    color: #4267B2;
+}
+
+.social-icon.instagram .dashicons {
+    color: #E4405F;
+}
+
+.social-icon.website .dashicons {
+    color: #333;
+}
+
+.social-icon.email .dashicons {
+    color: #D44638;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .dianalund-cpt-display {
+        max-width: 100%;
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .dianalund-cpt-display .cpt-logo img {
+        max-width: 120px;
+    }
+    
+    .dianalund-cpt-display .social-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .dianalund-cpt-display .social-icon .dashicons {
+        font-size: 18px;
+    }
+}
+
+/* Editor preview styling */
+.dianalund-cpt-display-editor {
+    padding: 20px;
+    border: 2px dashed #ccc;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+.cpt-display-preview {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+    max-width: 300px;
+    margin: 0 auto;
+}
