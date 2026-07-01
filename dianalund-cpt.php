@@ -3,7 +3,7 @@
 Plugin Name: Dianalund-cpt
 Plugin URI:  http://www.jaxweb.dk
 Description: Custom Post Types til Dianalund.dk
-Version:     22-06-2017
+Version:     2.0.0
 Author:      jaxweb.dk
 Author URI:  http://www.jaxweb.dk
 License:     GPL2

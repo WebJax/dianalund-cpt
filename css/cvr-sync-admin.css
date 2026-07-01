@@ -1,0 +1,304 @@
+/* ============================================================
+   CVR Sync Admin – compare & sync UI styles
+   ============================================================ */
+
+/* ----------------------------------------------------------------
+   CPT tab navigation
+   ---------------------------------------------------------------- */
+
+.cvr-cpt-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 16px 0 12px;
+    border-bottom: 1px solid #c3c4c7;
+    padding-bottom: 0;
+}
+
+.cvr-cpt-tabs a {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 13px;
+    text-decoration: none;
+    color: #2c3338;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    background: #f0f0f1;
+    position: relative;
+    bottom: -1px;
+    line-height: 1.4;
+}
+
+.cvr-cpt-tabs a:hover {
+    background: #fff;
+    border-color: #c3c4c7 #c3c4c7 #fff;
+    color: #2271b1;
+}
+
+.cvr-cpt-tabs .cvr-tab--active {
+    background: #fff;
+    border-color: #c3c4c7 #c3c4c7 #fff;
+    color: #1d2327;
+    font-weight: 600;
+}
+
+/* ----------------------------------------------------------------
+   Two-column layout
+   ---------------------------------------------------------------- */
+
+.cvr-compare-wrap {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-top: 12px;
+}
+
+.cvr-compare-col {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.cvr-compare-col h2 {
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ----------------------------------------------------------------
+   Search bar
+   ---------------------------------------------------------------- */
+
+.cvr-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.cvr-search-bar .regular-text {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.cvr-search-bar .small-text {
+    width: 96px;
+}
+
+.cvr-filter-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #3c434a;
+}
+
+/* ----------------------------------------------------------------
+   Compare tables
+   ---------------------------------------------------------------- */
+
+.cvr-compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: auto;
+}
+
+.cvr-compare-table thead th {
+    background: #f6f7f7;
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #c3c4c7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cvr-compare-table tbody td {
+    padding: 6px 8px;
+    vertical-align: top;
+    word-break: break-word;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.local-col-cvr, .cvr-col-cvr {
+    width: 11%;
+}
+
+.cvr-compare-table th:last-child,
+.cvr-col-actions,
+.local-col-actions {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.cvr-col-actions .button,
+.local-col-actions .button,
+.cvr-col-actions .button-link,
+.local-col-actions .button-link {
+    margin-right: 4px;
+}
+
+.cvr-compare-table tbody tr:hover td {
+    background: #f6f7f7;
+}
+
+/* ----------------------------------------------------------------
+   Match highlighting
+   ---------------------------------------------------------------- */
+
+.cvr-row--matched td,
+.local-row--matched td {
+    background-color: #edfaee !important;
+}
+
+.cvr-row--updated td,
+.local-row--updated td {
+    background-color: #e8f3fb !important;
+}
+
+/* ----------------------------------------------------------------
+   Status badges
+   ---------------------------------------------------------------- */
+
+.cvr-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    line-height: 1.5;
+}
+
+.cvr-badge--synced {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.cvr-badge--linked {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.cvr-badge--unlinked {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* ----------------------------------------------------------------
+   Link-select inline widget
+   ---------------------------------------------------------------- */
+
+.cvr-link-select-wrap {
+    display: none;
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: #f9f9f9;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.cvr-link-select-wrap select {
+    flex: 1 1 160px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* ----------------------------------------------------------------
+   Button loading state
+   ---------------------------------------------------------------- */
+
+.cvr-btn--loading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* ----------------------------------------------------------------
+   Inline notices (per-row)
+   ---------------------------------------------------------------- */
+
+.cvr-inline-notice {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 3px;
+    line-height: 1.5;
+}
+
+.cvr-inline-notice--success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.cvr-inline-notice--error {
+    background: #fde8e8;
+    color: #9b1c1c;
+}
+
+/* ----------------------------------------------------------------
+   CVR pagination and details
+   ---------------------------------------------------------------- */
+
+.cvr-pager {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0 10px;
+}
+
+.cvr-pager-meta {
+    font-size: 12px;
+    color: #50575e;
+}
+
+.cvr-row-details td {
+    background: #f6f7f7;
+}
+
+.cvr-details-grid {
+    display: grid;
+    grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+    gap: 4px 14px;
+}
+
+.cvr-details-grid p {
+    margin: 0;
+    font-size: 12px;
+}
+
+/* ----------------------------------------------------------------
+   Test connection result area
+   ---------------------------------------------------------------- */
+
+#dianalund-cvr-test-result .notice {
+    margin: 0;
+}
+
+/* ----------------------------------------------------------------
+   Empty cell placeholder
+   ---------------------------------------------------------------- */
+
+.cvr-empty {
+    color: #aaa;
+}
+
+/* ----------------------------------------------------------------
+   Responsive: stack columns on narrow viewports
+   ---------------------------------------------------------------- */
+
+@media screen and ( max-width: 960px ) {
+    .cvr-compare-wrap {
+        flex-direction: column;
+    }
+
+    .cvr-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
