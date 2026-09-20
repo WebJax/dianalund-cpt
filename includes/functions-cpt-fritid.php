@@ -84,7 +84,7 @@ function send_forenings_mail() {
 				echo '<hr>';
 				echo '	<div>'.$newbody.'</div>';
 				echo '</div>';
-				wp_mail( $adresse, $subject, $newbody, $headers );
+				wp_mail( $adresse, $subject, (string)$newbody, $headers );
 				$t++;
 			}
 			echo '<hr>';

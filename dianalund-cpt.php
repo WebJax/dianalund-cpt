@@ -29,26 +29,42 @@ along with dianalund-cpt. If not, see {URI to Plugin License}.
 
 require_once dirname( __FILE__ ) . '/includes/functions-cvr-sync.php';
 
+require_once dirname( __FILE__ ) . '/includes/class-cpt-gone-redirects.php';
+
+function dianalund_cpt_boot_gone_redirects() {
+    $redirects = new Cpt_Gone_Redirects(
+        array(
+            'butiksside'    => array( 'target' => '/butikker/', 'code' => 410 ),
+            'erhvervsside'  => array( 'target' => '/erhverv/', 'code' => 410 ),
+            'foreningsside' => array( 'target' => '/foreninger/', 'code' => 410),
+            'landingsside'  => array( 'target' => '/landingssider/', 'code' => 410),
+        )
+    );
+}
+add_action( 'plugins_loaded', 'dianalund_cpt_boot_gone_redirects' );
+
 function dianalund_cpt_setup_post_types()
 {
-    // register the three custom post type
+    // register the four custom post types - $args are defined in the files required
 
-  add_menu_page('', '', 'read', 'seperator-1', '', 'none', 45);	
-  require_once(dirname( __FILE__ ) . "/includes/functions-cpt-butikker.php");
-  register_post_type( 'butiksside', $args );
-  add_action('save_post', 'save_butiks_meta', 999, 2); // save the custom fields
+    add_menu_page('', '', 'read', 'seperator-1', '', 'none', 45);
+
+    require_once(dirname( __FILE__ ) . "/includes/functions-cpt-butikker.php");
+    register_post_type( 'butiksside', $args ); // @phpantom-ignore
+    add_action('save_post', 'save_butiks_meta', 999, 2); // save the custom fields
   
-  require_once(dirname( __FILE__ ) . "/includes/functions-cpt-fritid.php");  
-	register_post_type( 'foreningsside', $args );
-  add_action('save_post', 'save_forenings_meta', 1, 2); // save the custom fields
+    require_once(dirname( __FILE__ ) . "/includes/functions-cpt-fritid.php");  
+	register_post_type( 'foreningsside', $args ); // @phpantom-ignore
+    add_action('save_post', 'save_forenings_meta', 999, 2); // save the custom fields
   
-  require_once(dirname( __FILE__ ) . "/includes/functions-cpt-erhverv.php");  
- 	register_post_type( 'erhvervsside', $args );
-  add_action('save_post', 'save_erhvervs_meta', 999, 2); // save the custom fields
+    require_once(dirname( __FILE__ ) . "/includes/functions-cpt-erhverv.php");  
+ 	register_post_type( 'erhvervsside', $args ); // @phpantom-ignore
+    add_action('save_post', 'save_erhvervs_meta', 999, 2); // save the custom fields
   
-  require_once(dirname( __FILE__ ) . "/includes/functions-cpt-landingpages.php");  
- 	register_post_type( 'landingsside', $args );
-	
+    require_once(dirname( __FILE__ ) . "/includes/functions-cpt-landingpages.php");  
+ 	register_post_type( 'landingsside', $args ); // @phpantom-ignore
+	add_action('save_post', 'save_landings_meta', 999, 2); // save the custom fields
+  
 	// enqueue datepicker and styles and special style to overcome minor z-index-problem with TinyMCE
 	function enqueue_datepicker_ui_for_associations() {
 		wp_register_script( 

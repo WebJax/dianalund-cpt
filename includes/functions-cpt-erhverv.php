@@ -240,7 +240,7 @@ function erhverv_prefix_wcount() {
     ob_start();
     the_content();
     $content = ob_get_clean();
-		$wc_size = (2 < sizeof(explode(" ", $content))) ? sizeof(explode(" ", $content)) : "Ingen";
+		$wc_size = (2 < sizeof(explode(" ", (string)$content))) ? sizeof(explode(" ", (string)$content)) : "Ingen";
     return $wc_size;
 }
 

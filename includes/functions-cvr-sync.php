@@ -1099,7 +1099,7 @@ function dianalund_cvr_ajax_auto_link_cpt() {
     $field_map = dianalund_cvr_sync_get_field_map( $post_type );
     $postnr_key = isset( $field_map['postnr'] ) ? (string) $field_map['postnr'] : '';
 
-    $posts = get_posts(
+    $posts = (array)get_posts(
         array(
             'post_type'      => $post_type,
             'post_status'    => array( 'publish', 'draft', 'private' ),
@@ -1131,7 +1131,7 @@ function dianalund_cvr_ajax_auto_link_cpt() {
             $postnr = (string) get_post_meta( $post->ID, $postnr_key, true );
         }
 
-        $query  = dianalund_cvr_sync_build_active_company_query( (string) $post->post_title, 25, $postnr, false, 1 );
+        $query  = dianalund_cvr_sync_build_active_company_query( (string)$post->post_title, 25, $postnr, false, 1 );
         $result = dianalund_cvr_sync_search( $query );
 
         if ( is_wp_error( $result ) ) {
@@ -1284,6 +1284,7 @@ function dianalund_cvr_ajax_create_post() {
 
     if ( is_wp_error( $post_id ) ) {
         wp_send_json_error( array( 'message' => $post_id->get_error_message() ) );
+        return;
     }
 
     dianalund_cvr_sync_apply_to_post( $post_id, $normalized, $post_type );
@@ -1328,7 +1329,7 @@ function dianalund_cvr_sync_render_compare_page() {
         'foreningsside' => __( 'Foreninger', 'dianalund_txtdomain' ),
     );
 
-    $posts = get_posts(
+    $posts = (array)get_posts(
         array(
             'post_type'      => $cpt,
             'post_status'    => array( 'publish', 'draft', 'private' ),

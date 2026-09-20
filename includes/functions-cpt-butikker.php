@@ -2,51 +2,45 @@
 /**
  * Resister Custom Post Type for Shop (butik)
  *
- * Payed pages
- *
- */
-
-/**
- * Register a shop post type.
- *
  * @link http://codex.wordpress.org/Function_Reference/register_post_type
  */
-	$labels = array(
-		'name'               => _x( 'Butikker', 'Butikker', 'dianalund_txtdomain' ),
-		'singular_name'      => _x( 'Butik', 'Butik', 'dianalund_txtdomain' ),
-		'menu_name'          => _x( 'Butikker', 'admin menu', 'dianalund_txtdomain' ),
-		'name_admin_bar'     => _x( 'Butik', 'add new on admin bar', 'dianalund_txtdomain' ),
-		'add_new'            => _x( 'Tilføj ny', 'butik', 'dianalund_txtdomain' ),
-		'add_new_item'       => __( 'Tilføj ny butik', 'dianalund_txtdomain' ),
-		'new_item'           => __( 'Ny butik', 'dianalund_txtdomain' ),
-		'edit_item'          => __( 'Ret butik', 'dianalund_txtdomain' ),
-		'view_item'          => __( 'Se butik', 'dianalund_txtdomain' ),
-		'all_items'          => __( 'Alle butikker', 'dianalund_txtdomain' ),
-		'search_items'       => __( 'Søg butikker', 'dianalund_txtdomain' ),
-		'parent_item_colon'  => __( 'Forældre butikker:', 'dianalund_txtdomain' ),
-		'not_found'          => __( 'Ingen butikker fundet.', 'dianalund_txtdomain' ),
-		'not_found_in_trash' => __( 'Ingen butikker fundet i skraldespand.', 'dianalund_txtdomain' )
-	);
 
-	$args = array(
-		'labels'             		=> $labels,
-    'description'        		=> __( 'Opret butikker for betalende kunder.', 'dianalund_txtdomain' ),
-		'public'             		=> true,
-		'publicly_queryable' 		=> true,
-		'show_ui'            		=> true,
-		'show_in_menu'       		=> true,
-		'query_var'          		=> true,
-		'rewrite'            		=> array( 'slug' => 'butik' ),
-		'capability_type'    		=> 'post',
-		'has_archive'        		=> true,
-		'hierarchical'       		=> false,
-		'menu_position'      		=> 45,
-		'menu_icon'						  => 'dashicons-store',
-		'supports'           		=> array( 'title', 'editor', 'thumbnail' ),
-		'register_meta_box_cb' 	=> 'add_butik_metaboxes',
-		'taxonomies' 						=> array('category'),
-    'show_in_rest'          => true
-	);
+$labels = array(
+	'name'               => _x( 'Butikker', 'Butikker', 'dianalund_txtdomain' ),
+	'singular_name'      => _x( 'Butik', 'Butik', 'dianalund_txtdomain' ),
+	'menu_name'          => _x( 'Butikker', 'admin menu', 'dianalund_txtdomain' ),
+	'name_admin_bar'     => _x( 'Butik', 'add new on admin bar', 'dianalund_txtdomain' ),
+	'add_new'            => _x( 'Tilføj ny', 'butik', 'dianalund_txtdomain' ),
+	'add_new_item'       => __( 'Tilføj ny butik', 'dianalund_txtdomain' ),
+	'new_item'           => __( 'Ny butik', 'dianalund_txtdomain' ),
+	'edit_item'          => __( 'Ret butik', 'dianalund_txtdomain' ),
+	'view_item'          => __( 'Se butik', 'dianalund_txtdomain' ),
+	'all_items'          => __( 'Alle butikker', 'dianalund_txtdomain' ),
+	'search_items'       => __( 'Søg butikker', 'dianalund_txtdomain' ),
+	'parent_item_colon'  => __( 'Forældre butikker:', 'dianalund_txtdomain' ),
+	'not_found'          => __( 'Ingen butikker fundet.', 'dianalund_txtdomain' ),
+	'not_found_in_trash' => __( 'Ingen butikker fundet i skraldespand.', 'dianalund_txtdomain' )
+);
+
+$args = array(
+	'labels'             		=> $labels,
+	'description'        		=> __( 'Opret butikker for betalende kunder.', 'dianalund_txtdomain' ),
+	'public'             		=> true,
+	'publicly_queryable' 		=> true,
+	'show_ui'            		=> true,
+	'show_in_menu'       		=> true,
+	'query_var'          		=> true,
+	'rewrite'            		=> array( 'slug' => 'butik' ),
+	'capability_type'    		=> 'post',
+	'has_archive'        		=> true,
+	'hierarchical'       		=> false,
+	'menu_position'      		=> 45,
+	'menu_icon'					=> 'dashicons-store',
+	'supports'           		=> array( 'title', 'editor', 'thumbnail' ),
+	'register_meta_box_cb' 		=> 'add_butik_metaboxes',
+	'taxonomies' 				=> array('category'),
+	'show_in_rest'          	=> true,
+);
 
 
  function add_butik_metaboxes(){
@@ -237,7 +231,7 @@ function butik_prefix_wcount() {
     ob_start();
     the_content();
     $content = ob_get_clean();
-		$wc_size = (2 < sizeof(explode(" ", $content))) ? sizeof(explode(" ", $content)) : "Ingen";
+		$wc_size = (2 < sizeof(explode(" ", (string)$content))) ? sizeof(explode(" ", (string)$content)) : "Ingen";
     return $wc_size;
 }
 
