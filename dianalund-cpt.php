@@ -63,7 +63,6 @@ function dianalund_cpt_setup_post_types()
   
     require_once(dirname( __FILE__ ) . "/includes/functions-cpt-landingpages.php");  
  	register_post_type( 'landingsside', $args ); // @phpantom-ignore
-	add_action('save_post', 'save_landings_meta', 999, 2); // save the custom fields
   
 	// enqueue datepicker and styles and special style to overcome minor z-index-problem with TinyMCE
 	function enqueue_datepicker_ui_for_associations() {
