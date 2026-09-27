@@ -89,13 +89,13 @@ function dianalund_cpt_setup_post_types()
 
 	if ( ! function_exists( 'dianalund_cpt_add_page_number' ) )
 	{
-		function dianalund_cpt_add_page_number( $s )
+		function dianalund_cpt_add_page_number( string $s ): string
 		{
 			global $post;
 			$seo_custom_text_for_butik_og_erhverv = ". Du finder virksomheden på Dianalund.dk, byens samlende hjemmeside udviklet af Dianalund Udviklingsråd.";
 			if( $post->post_type == 'butiksside' ) {
 				$dianalund_cpt_payed = get_post_meta($post->ID, 'butik_payed_payedbutik', true);
-				if ($dianalund_cpt_payed = "Intet") {		
+				if ($dianalund_cpt_payed == "Intet") {		
 					$dianalund_cpt_name = get_post_meta($post->ID, 'butik_payed_name', true);
 					$dianalund_cpt_adress = get_post_meta($post->ID, 'butik_payed_adress', true);
 					$dianalund_cpt_postal = get_post_meta($post->ID, 'butik_payed_postal', true);
@@ -105,7 +105,7 @@ function dianalund_cpt_setup_post_types()
 				}
 			} else if ( $post->post_type == 'erhvervsside' ) {
 				$dianalund_cpt_payed = get_post_meta($post->ID, 'bizz_payed_payedbizz', true);
-				if ($dianalund_cpt_payed = "Intet") {
+				if ($dianalund_cpt_payed == "Intet") {
 					$dianalund_cpt_name = get_post_meta($post->ID, 'bizz_payed_name', true);
 					$dianalund_cpt_adress = get_post_meta($post->ID, 'bizz_payed_adress', true);
 					$dianalund_cpt_postal = get_post_meta($post->ID, 'bizz_payed_postal', true);

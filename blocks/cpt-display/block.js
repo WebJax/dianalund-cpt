@@ -16,6 +16,7 @@
         description: i18n.__('Vis data fra custom post types'),
         category: 'common',
         icon: 'businessman',
+        apiVersion: 3,
         
         attributes: {
             postId: { type: 'string', default: '' },
