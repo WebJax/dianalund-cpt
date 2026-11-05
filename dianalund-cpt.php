@@ -31,6 +31,8 @@ require_once dirname( __FILE__ ) . '/includes/functions-cvr-sync.php';
 
 require_once dirname( __FILE__ ) . '/includes/class-cpt-gone-redirects.php';
 
+require_once dirname( __FILE__ ) . '/includes/jxw-fields.php';
+
 function dianalund_cpt_boot_gone_redirects() {
     $redirects = new Cpt_Gone_Redirects(
         array(
