@@ -719,23 +719,12 @@ function jxw_get_opening_hours_specs( $post_id ) {
  */
 function jxw_get_hours_table_html( $post_id ) {
 	$post_id  = (int) $post_id;
-	$payload  = jxw_coerce_hours_payload( jxw_get_field( $post_id, 'jxw_hours' ) );
-	$labels   = jxw_weekday_labels();
-	$today    = jxw_today();
-	$today_key = strtolower( gmdate( 'l', strtotime( $today . ' UTC' ) ) );
-	if ( function_exists( 'current_time' ) ) {
-		$today_key = strtolower( date_i18n( 'l', strtotime( current_time( 'mysql' ) ) ) );
-		$map       = array(
-			'monday'    => 'monday',
-			'tuesday'   => 'tuesday',
-			'wednesday' => 'wednesday',
-			'thursday'  => 'thursday',
-			'friday'    => 'friday',
-			'saturday'  => 'saturday',
-			'sunday'    => 'sunday',
-		);
-		$today_key = isset( $map[ $today_key ] ) ? $map[ $today_key ] : $today_key;
-	}
+	$payload   = jxw_coerce_hours_payload( jxw_get_field( $post_id, 'jxw_hours' ) );
+	$labels    = jxw_weekday_labels();
+	$today     = jxw_today();
+	$timestamp = function_exists( 'current_time' ) ? current_time( 'timestamp' ) : time();
+	$week_map  = array( 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday' );
+	$today_key = $week_map[ (int) gmdate( 'w', $timestamp ) ];
 
 	$html = '<table class="butik-aabentider-tabel"><tbody>';
 
@@ -881,7 +870,7 @@ function jxw_output_legacy_schema() {
 	}
 
 	$schema  = jxw_build_legacy_schema( get_the_ID() );
-	$encoded = wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS );
+	$encoded = wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
 	if ( ! is_string( $encoded ) ) {
 		return;
 	}
