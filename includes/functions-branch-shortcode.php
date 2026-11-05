@@ -36,8 +36,8 @@ function diana_brancheliste( $diana_branche_attr ) {
 					<div class="erhvervsliste-thumbnail-sliderimage">
             <?php 
             $butikerhverv_thumbnail = get_the_post_thumbnail(get_the_ID(), 'medium');
-						$payed = get_post_meta(get_the_ID(), 'butik_payed_payedbutik', true);
-						if ($payed && $payed != 'Intet') { 
+						$payed = jxw_is_paid(get_the_ID());
+						if ($payed) { 
               echo $butikerhverv_thumbnail;
             } else {
               echo $branche_thumbnail;
@@ -48,8 +48,8 @@ function diana_brancheliste( $diana_branche_attr ) {
           <div class="erhvervsliste-kontakt">
 						<h5><?php the_title(); ?></h5>
 		        <?php 
-            echo '<p class="erhvervsliste-adresse">'.get_post_meta (get_the_ID(), 'butik_payed_adress', true).'</p>';
-            echo '<p class="erhvervsliste-postnrby">'.get_post_meta (get_the_ID(), 'butik_payed_postal', true)." ".get_post_meta (get_the_ID(), 'butik_payed_city', true).'</p>'; ?>
+            echo '<p class="erhvervsliste-adresse">'.esc_html( jxw_get_field( get_the_ID(), 'jxw_street' ) ).'</p>';
+            echo '<p class="erhvervsliste-postnrby">'.esc_html( jxw_get_field( get_the_ID(), 'jxw_postal' ) )." ".esc_html( jxw_get_field( get_the_ID(), 'jxw_city' ) ).'</p>'; ?>
           </div>
 				</div>
 			</a> <?php

@@ -3,7 +3,7 @@
 Plugin Name: Dianalund-cpt
 Plugin URI:  http://www.jaxweb.dk
 Description: Custom Post Types til Dianalund.dk
-Version:     2.0.0
+Version:     2.1.0
 Author:      jaxweb.dk
 Author URI:  http://www.jaxweb.dk
 License:     GPL2
@@ -30,6 +30,11 @@ along with dianalund-cpt. If not, see {URI to Plugin License}.
 require_once dirname( __FILE__ ) . '/includes/functions-cvr-sync.php';
 
 require_once dirname( __FILE__ ) . '/includes/class-cpt-gone-redirects.php';
+
+require_once dirname( __FILE__ ) . '/includes/jxw-fields.php';
+require_once dirname( __FILE__ ) . '/includes/jxw-hours.php';
+require_once dirname( __FILE__ ) . '/includes/jxw-migrate.php';
+require_once dirname( __FILE__ ) . '/includes/jxw-term-intro.php';
 
 function dianalund_cpt_boot_gone_redirects() {
     $redirects = new Cpt_Gone_Redirects(
@@ -93,24 +98,13 @@ function dianalund_cpt_setup_post_types()
 		{
 			global $post;
 			$seo_custom_text_for_butik_og_erhverv = ". Du finder virksomheden på Dianalund.dk, byens samlende hjemmeside udviklet af Dianalund Udviklingsråd.";
-			if( $post->post_type == 'butiksside' ) {
-				$dianalund_cpt_payed = get_post_meta($post->ID, 'butik_payed_payedbutik', true);
-				if ($dianalund_cpt_payed == "Intet") {		
-					$dianalund_cpt_name = get_post_meta($post->ID, 'butik_payed_name', true);
-					$dianalund_cpt_adress = get_post_meta($post->ID, 'butik_payed_adress', true);
-					$dianalund_cpt_postal = get_post_meta($post->ID, 'butik_payed_postal', true);
-					$dianalund_cpt_city = get_post_meta($post->ID, 'butik_payed_city', true);
-					$dianalund_cpt_phone = get_post_meta($post->ID, 'butik_payed_phone', true);
-					$s = $dianalund_cpt_name . ", " . $dianalund_cpt_adress . ", " . $dianalund_cpt_postal . " " . $dianalund_cpt_city . ". Telefon: " . $dianalund_cpt_phone . " " . $seo_custom_text_for_butik_og_erhverv;
-				}
-			} else if ( $post->post_type == 'erhvervsside' ) {
-				$dianalund_cpt_payed = get_post_meta($post->ID, 'bizz_payed_payedbizz', true);
-				if ($dianalund_cpt_payed == "Intet") {
-					$dianalund_cpt_name = get_post_meta($post->ID, 'bizz_payed_name', true);
-					$dianalund_cpt_adress = get_post_meta($post->ID, 'bizz_payed_adress', true);
-					$dianalund_cpt_postal = get_post_meta($post->ID, 'bizz_payed_postal', true);
-					$dianalund_cpt_city = get_post_meta($post->ID, 'bizz_payed_city', true);
-					$dianalund_cpt_phone = get_post_meta($post->ID, 'bizz_payed_phone', true);
+			if( $post->post_type == 'butiksside' || $post->post_type == 'erhvervsside' ) {
+				if ( ! jxw_is_paid( $post->ID ) ) {
+					$dianalund_cpt_name = jxw_get_field($post->ID, 'jxw_name');
+					$dianalund_cpt_adress = jxw_get_field($post->ID, 'jxw_street');
+					$dianalund_cpt_postal = jxw_get_field($post->ID, 'jxw_postal');
+					$dianalund_cpt_city = jxw_get_field($post->ID, 'jxw_city');
+					$dianalund_cpt_phone = jxw_get_field($post->ID, 'jxw_phone');
 					$s = $dianalund_cpt_name . ", " . $dianalund_cpt_adress . ", " . $dianalund_cpt_postal . " " . $dianalund_cpt_city . ". Telefon: " . $dianalund_cpt_phone . " " . $seo_custom_text_for_butik_og_erhverv;
 				}
 			}

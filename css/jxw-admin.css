@@ -1,0 +1,17 @@
+.jxw-hours-days,
+.jxw-hours-exceptions {
+	margin: 12px 0;
+}
+
+.jxw-hours-days input[type="time"],
+.jxw-hours-exceptions input[type="time"],
+.jxw-hours-exceptions input[type="date"] {
+	width: 100%;
+	max-width: 11em;
+}
+
+.jxw-contact-fields input,
+.jxw-contact-fields select {
+	width: 100%;
+	max-width: 22em;
+}
