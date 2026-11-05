@@ -537,3 +537,157 @@ function jxw_cvr_to_field_key( $cvr_key ) {
 
 	return isset( $map[ $cvr_key ] ) ? $map[ $cvr_key ] : '';
 }
+
+/**
+ * Subscription tier options still stored on the legacy paid key.
+ *
+ * @return string[]
+ */
+function jxw_subscription_tiers() {
+	return array( 'Intet', 'Sølv', 'Guld', 'Platin', 'Anden aftale' );
+}
+
+/**
+ * Contact field labels for a post type.
+ *
+ * @param string $post_type Post type.
+ * @return array<string, string>
+ */
+function jxw_contact_field_labels( $post_type ) {
+	$name = __( 'Navn', 'dianalund_txtdomain' );
+	if ( 'butiksside' === $post_type ) {
+		$name = __( 'Butiksnavn', 'dianalund_txtdomain' );
+	} elseif ( 'erhvervsside' === $post_type ) {
+		$name = __( 'Virksomhedsnavn', 'dianalund_txtdomain' );
+	} elseif ( 'foreningsside' === $post_type ) {
+		$name = __( 'Foreningsnavn', 'dianalund_txtdomain' );
+	}
+
+	return array(
+		'jxw_name'      => $name,
+		'jxw_street'    => __( 'Adresse', 'dianalund_txtdomain' ),
+		'jxw_postal'    => __( 'Postnr', 'dianalund_txtdomain' ),
+		'jxw_city'      => __( 'By', 'dianalund_txtdomain' ),
+		'jxw_phone'     => __( 'Telefon', 'dianalund_txtdomain' ),
+		'jxw_email'     => __( 'Email', 'dianalund_txtdomain' ),
+		'jxw_web'       => __( 'Hjemmeside', 'dianalund_txtdomain' ),
+		'jxw_facebook'  => __( 'Facebook', 'dianalund_txtdomain' ),
+		'jxw_instagram' => __( 'Instagram', 'dianalund_txtdomain' ),
+	);
+}
+
+/**
+ * Renders shared contact inputs. Saves to jxw_* keys only.
+ *
+ * @param WP_Post $post Post.
+ * @return void
+ */
+function jxw_render_contact_metabox( $post ) {
+	wp_nonce_field( 'jxw_save_meta_' . $post->ID, 'jxw_meta_nonce' );
+
+	$labels = jxw_contact_field_labels( $post->post_type );
+	echo '<table class="jxw-contact-fields">';
+	foreach ( $labels as $key => $label ) {
+		$value = jxw_get_field( $post->ID, $key );
+		$input_type = 'jxw_email' === $key ? 'email' : 'text';
+		if ( in_array( $key, array( 'jxw_web', 'jxw_facebook', 'jxw_instagram' ), true ) ) {
+			$input_type = 'url';
+		}
+		printf(
+			'<tr><td><label for="%1$s">%2$s</label><br /><input type="%3$s" name="%1$s" id="%1$s" value="%4$s" class="widefat" /></td></tr>',
+			esc_attr( $key ),
+			esc_html( $label ),
+			esc_attr( $input_type ),
+			esc_attr( $value )
+		);
+	}
+
+	if ( in_array( $post->post_type, array( 'butiksside', 'erhvervsside' ), true ) ) {
+		$legacy_paid = jxw_legacy_meta_key( $post->post_type, 'jxw_paid' );
+		$tier        = $legacy_paid ? (string) get_post_meta( $post->ID, $legacy_paid, true ) : '';
+		echo '<tr><td><label for="jxw_subscription">' . esc_html__( 'Abonnent', 'dianalund_txtdomain' ) . '</label><br />';
+		echo '<select name="jxw_subscription" id="jxw_subscription">';
+		foreach ( jxw_subscription_tiers() as $option ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $option ),
+				selected( $tier, $option, false ),
+				esc_html( $option )
+			);
+		}
+		echo '</select></td></tr>';
+	}
+
+	echo '</table>';
+}
+
+/**
+ * Saves shared contact fields from the metabox. Old mapped keys are not written,
+ * except the subscription tier which has no new-key equivalent.
+ *
+ * @param int     $post_id Post ID.
+ * @param WP_Post $post    Post object.
+ * @return void
+ */
+function jxw_save_shared_meta( $post_id, $post ) {
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+
+	if ( wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+
+	if ( ! isset( $post->post_type ) || ! jxw_is_supported_post_type( $post->post_type ) ) {
+		return;
+	}
+
+	if ( ! isset( $_POST['jxw_meta_nonce'] ) ) {
+		return;
+	}
+
+	$posted = wp_unslash( $_POST );
+	$nonce  = isset( $posted['jxw_meta_nonce'] ) ? $posted['jxw_meta_nonce'] : '';
+	if ( ! wp_verify_nonce( $nonce, 'jxw_save_meta_' . $post_id ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$map = array(
+		'jxw_name'      => 'jxw_sanitize_text',
+		'jxw_street'    => 'jxw_sanitize_text',
+		'jxw_postal'    => 'jxw_sanitize_postal',
+		'jxw_city'      => 'jxw_sanitize_text',
+		'jxw_phone'     => 'jxw_sanitize_phone',
+		'jxw_email'     => 'jxw_sanitize_email_field',
+		'jxw_web'       => 'jxw_sanitize_url_field',
+		'jxw_facebook'  => 'jxw_sanitize_url_field',
+		'jxw_instagram' => 'jxw_sanitize_url_field',
+	);
+
+	foreach ( $map as $key => $callback ) {
+		if ( ! isset( $posted[ $key ] ) ) {
+			continue;
+		}
+		update_post_meta( $post_id, $key, call_user_func( $callback, $posted[ $key ] ) );
+	}
+
+	if ( isset( $posted['jxw_subscription'] ) ) {
+		$tier        = sanitize_text_field( $posted['jxw_subscription'] );
+		$legacy_paid = jxw_legacy_meta_key( $post->post_type, 'jxw_paid' );
+		if ( '' !== $legacy_paid ) {
+			update_post_meta( $post_id, $legacy_paid, $tier );
+		}
+		update_post_meta( $post_id, 'jxw_paid', jxw_normalize_paid_value( $tier ) );
+	} elseif ( isset( $posted['jxw_paid'] ) ) {
+		update_post_meta( $post_id, 'jxw_paid', jxw_sanitize_paid( $posted['jxw_paid'] ) );
+	}
+
+	if ( 'butiksside' === $post->post_type ) {
+		jxw_save_hours_from_request( $post_id );
+	}
+}
+add_action( 'save_post', 'jxw_save_shared_meta', 20, 2 );

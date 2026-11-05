@@ -54,26 +54,10 @@ function render_dianalund_cpt_display_block($attributes) {
     $website = '';
     $email = '';
     
-    switch ($post_type) {
-        case 'butiksside':
-            $facebook = get_post_meta($post_id, 'butik_payed_fb', true);
-            $instagram = get_post_meta($post_id, 'butik_payed_insta', true);
-            $website = get_post_meta($post_id, 'butik_payed_web', true);
-            $email = get_post_meta($post_id, 'butik_payed_mail', true);
-            break;
-        case 'erhvervsside':
-            $facebook = get_post_meta($post_id, 'bizz_payed_fb', true);
-            $instagram = get_post_meta($post_id, 'bizz_payed_insta', true);
-            $website = get_post_meta($post_id, 'bizz_payed_web', true);
-            $email = get_post_meta($post_id, 'bizz_payed_mail', true);
-            break;
-        case 'foreningsside':
-            $facebook = get_post_meta($post_id, 'fritid_payed_fb', true);
-            $instagram = ''; // Foreninger har ikke Instagram felt
-            $website = get_post_meta($post_id, 'fritid_payed_web', true);
-            $email = get_post_meta($post_id, 'fritid_payed_mail', true);
-            break;
-    }
+    $facebook  = jxw_get_field( $post_id, 'jxw_facebook' );
+    $instagram = jxw_get_field( $post_id, 'jxw_instagram' );
+    $website   = jxw_get_field( $post_id, 'jxw_web' );
+    $email     = jxw_get_field( $post_id, 'jxw_email' );
     
     if (!empty($attributes['showFacebook']) && $facebook) {
         $facebook_url = $facebook;

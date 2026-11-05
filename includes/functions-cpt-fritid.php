@@ -160,9 +160,9 @@ function send_forenings_mail() {
 		while ( $mail_query->have_posts() ) {
 			$mail_query->the_post();
 			$fritid_payed_mail = "";
-			$fritid_payed_mail = get_post_meta($mail_query->post->ID, 'fritid_payed_mail', true);
+			$fritid_payed_mail = jxw_get_field($mail_query->post->ID, 'jxw_email');
 			if ($fritid_payed_mail != "") {
-				$fritid_payed_name = get_post_meta($mail_query->post->ID, 'fritid_payed_name', true);
+				$fritid_payed_name = jxw_get_field($mail_query->post->ID, 'jxw_name');
 				echo '<p><input type="checkbox" name="mailadress[]" value="'.$fritid_payed_name.' <'.$fritid_payed_mail.'>"/> '.$fritid_payed_name.'</p>';
 				echo '<input type="hidden" name="forening_link[]" value="'.get_post_permalink($mail_query->post->ID).'"/>';
 			}
@@ -224,36 +224,17 @@ add_action( 'admin_menu', 'send_forenings_mail_menu' );
  }  	
 
 function fritid_kontakt_meta_options(){
-	
 		global $post;
-		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="kontaktforeningsmeta_noncename" id="kontaktforeningsmeta_noncename" value="' . 
-		wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+		jxw_render_contact_metabox( $post );
 
-		// Get the location data if its already been entered
-		$fritid_payed_name = get_post_meta($post->ID, 'fritid_payed_name', true);
-		$fritid_payed_adress = get_post_meta($post->ID, 'fritid_payed_adress', true);
-		$fritid_payed_postal = get_post_meta($post->ID, 'fritid_payed_postal', true);
-		$fritid_payed_city = get_post_meta($post->ID, 'fritid_payed_city', true);
-		$fritid_payed_phone = get_post_meta($post->ID, 'fritid_payed_phone', true);
-		$fritid_payed_mail = get_post_meta($post->ID, 'fritid_payed_mail', true);
-		$fritid_payed_show_mail = get_post_meta($post->ID, 'fritid_payed_show_mail', true);	
-		$fritid_payed_web = get_post_meta($post->ID, 'fritid_payed_web', true);
-		$fritid_payed_fb = get_post_meta($post->ID, 'fritid_payed_fb', true);
+		$fritid_payed_show_mail = get_post_meta($post->ID, 'fritid_payed_show_mail', true);
 		$fritid_payed_sidstkontaktet = get_post_meta($post->ID, 'fritid_payed_sidstkontaktet', true);
 		$fritid_payed_vendttilbage = get_post_meta($post->ID, 'fritid_payed_vendttilbage', true);
 		?>
-		<table>
-			<tr><td><label for="fritid_payed_name">Foreningsnavn:</label><br/><input type="text" value="<?php echo $fritid_payed_name;?>" name="fritid_payed_name" id="fritid_payed_name"/></td></tr>
-			<tr><td><label for="fritid_payed_adress">Adresse:</label><br/><input type="text" value="<?php echo $fritid_payed_adress;?>" name="fritid_payed_adress" id="fritid_payed_adress"/></td></tr>
-			<tr><td><label for="fritid_payed_postal">Postnr:</label><br/><input type="text" value="<?php if ($fritid_payed_postal=='') { echo "4293"; } else { echo $fritid_payed_postal; } ?>" name="fritid_payed_postal" id="fritid_payed_postal"/></td></tr>
-			<tr><td><label for="fritid_payed_city">By:</label><br/><input type="text" value="<?php if ($fritid_payed_city=='') { echo "Dianalund"; } else { echo $fritid_payed_city; }?>" name="fritid_payed_city" id="fritid_payed_city"/></td></tr>
-			<tr><td><label for="fritid_payed_phone">Telefon:</label><br/><input type="text" value="<?php echo $fritid_payed_phone;?>" name="fritid_payed_phone" id="fritid_payed_phone"/></td></tr>
-			<tr><td><label for="fritid_payed_mail">Email:</label><br/><input type="text" value="<?php echo $fritid_payed_mail;?>" name="fritid_payed_mail" id="fritid_payed_mail"/> Vis: <input type="checkbox" name="fritid_payed_show_mail" id="fritid_payed_show_mail" value="yes" <?php echo ($fritid_payed_show_mail == 'yes') ? 'checked' : '';?>></td></tr>
-			<tr><td><label for="fritid_payed_web">Hjemmeside:</label><br/><input type="text" value="<?php echo $fritid_payed_web;?>" name="fritid_payed_web" id="fritid_payed_web"/></td></tr>
-			<tr><td><label for="fritid_payed_fb">Facebook:</label><br/><input type="text" value="<?php echo $fritid_payed_fb;?>" name="fritid_payed_fb" id="fritid_payed_fb"/></td></tr>
-			<tr><td><label for="fritid_payed_sidstkontaktet">Sidst kontaktet:</label><br/><input type="text" value="<?php echo $fritid_payed_sidstkontaktet;?>" name="fritid_payed_sidstkontaktet" id="fritid_payed_sidstkontaktet" class="kontaktdato"/></td></tr>
-			<tr><td><label for="fritid_payed_vendttilbage">Vendt tilbage:</label><br/><input type="text" value="<?php echo $fritid_payed_vendttilbage;?>" name="fritid_payed_vendttilbage" id="fritid_payed_vendttilbage" class="kontaktdato"/></td></tr>
+		<table class="jxw-contact-fields">
+			<tr><td><label for="fritid_payed_show_mail"><?php echo esc_html__( 'Vis e-mail', 'dianalund_txtdomain' ); ?></label><br/><input type="checkbox" name="fritid_payed_show_mail" id="fritid_payed_show_mail" value="yes" <?php checked( 'yes', $fritid_payed_show_mail ); ?>></td></tr>
+			<tr><td><label for="fritid_payed_sidstkontaktet"><?php echo esc_html__( 'Sidst kontaktet', 'dianalund_txtdomain' ); ?></label><br/><input type="text" value="<?php echo esc_attr( $fritid_payed_sidstkontaktet ); ?>" name="fritid_payed_sidstkontaktet" id="fritid_payed_sidstkontaktet" class="kontaktdato"/></td></tr>
+			<tr><td><label for="fritid_payed_vendttilbage"><?php echo esc_html__( 'Vendt tilbage', 'dianalund_txtdomain' ); ?></label><br/><input type="text" value="<?php echo esc_attr( $fritid_payed_vendttilbage ); ?>" name="fritid_payed_vendttilbage" id="fritid_payed_vendttilbage" class="kontaktdato"/></td></tr>
 		</table>
 <?php
  }  
@@ -285,10 +266,10 @@ function save_forenings_meta($post_id, $post) {
 	if ( isset($_POST['foreningsmeta_noncename']) && !wp_verify_nonce( $_POST['foreningsmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
-	if ( isset($_POST['foreningsmeta_noncename']) && !wp_verify_nonce( $_POST['kontaktforeningsmeta_noncename'], plugin_basename(__FILE__) )) {
+	if ( isset($_POST['kontaktforeningsmeta_noncename']) && !wp_verify_nonce( $_POST['kontaktforeningsmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
-	if ( isset($_POST['foreningsmeta_noncename']) && !wp_verify_nonce( $_POST['logoforeningsmeta_noncename'], plugin_basename(__FILE__) )) {
+	if ( isset($_POST['logoforeningsmeta_noncename']) && !wp_verify_nonce( $_POST['logoforeningsmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
 
@@ -301,15 +282,7 @@ function save_forenings_meta($post_id, $post) {
 	
 	if (isset($_POST['fritid_aabentider'])) $events_meta['fritid_aabentider'] = $_POST['fritid_aabentider'];
 	if (isset($_POST['fritid_aabning_check'])) {$events_meta['fritid_aabning_check'] = $_POST['fritid_aabning_check'];} else {$events_meta['fritid_aabning_check'] = "";};
-	if (isset($_POST['fritid_payed_name'])) $events_meta['fritid_payed_name'] = $_POST['fritid_payed_name'];
-	if (isset($_POST['fritid_payed_adress'])) $events_meta['fritid_payed_adress'] = $_POST['fritid_payed_adress'];
-	if (isset($_POST['fritid_payed_postal'])) $events_meta['fritid_payed_postal'] = $_POST['fritid_payed_postal'];
-	if (isset($_POST['fritid_payed_city'])) $events_meta['fritid_payed_city'] = $_POST['fritid_payed_city'];
-	if (isset($_POST['fritid_payed_phone'])) $events_meta['fritid_payed_phone'] = $_POST['fritid_payed_phone'];
-	if (isset($_POST['fritid_payed_mail'])) $events_meta['fritid_payed_mail'] = $_POST['fritid_payed_mail'];
 	if (isset($_POST['fritid_payed_show_mail'])) $events_meta['fritid_payed_show_mail'] = $_POST['fritid_payed_show_mail'];
-	if (isset($_POST['fritid_payed_web'])) $events_meta['fritid_payed_web'] = $_POST['fritid_payed_web'];
-	if (isset($_POST['fritid_payed_fb'])) $events_meta['fritid_payed_fb'] = $_POST['fritid_payed_fb'];
 	if (isset($_POST['fritid_payed_sidstkontaktet'])) $events_meta['fritid_payed_sidstkontaktet'] = $_POST['fritid_payed_sidstkontaktet'];
 	if (isset($_POST['fritid_payed_vendttilbage'])) $events_meta['fritid_payed_vendttilbage'] = $_POST['fritid_payed_vendttilbage'];
 	if (isset($_POST['allround-cpt_logo_id'])) $events_meta['allround-cpt_logo_id'] = $_POST['allround-cpt_logo_id'];
@@ -355,7 +328,7 @@ function foreninger_custom_columns($column){
       the_excerpt();
       break;
     case "sidstkontakt":
-			$fritid_payed_mail = get_post_meta($post->ID, 'fritid_payed_mail', true);
+			$fritid_payed_mail = jxw_get_field($post->ID, 'jxw_email');
 			$sk = get_post_meta($post->ID, 'fritid_payed_sidstkontaktet', true);
 			$sk = ('' == $sk) ? 'Aldrig kontaktet' : 'Sidst kontaktet: '.$sk;
 			$vt = get_post_meta($post->ID, 'fritid_payed_vendttilbage', true);	

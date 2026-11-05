@@ -890,6 +890,161 @@ function jxw_output_legacy_schema() {
 }
 
 /**
+ * Enqueues hours admin assets on shop screens.
+ *
+ * @param string $hook Current admin hook.
+ * @return void
+ */
+function jxw_enqueue_hours_admin( $hook ) {
+	if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen || 'butiksside' !== $screen->post_type ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'jxw-hours-admin',
+		plugins_url( '../css/jxw-admin.css', __FILE__ ),
+		array(),
+		JXW_FIELDS_VERSION
+	);
+	wp_enqueue_script(
+		'jxw-hours-admin',
+		plugins_url( '../js/jxw-hours-admin.js', __FILE__ ),
+		array( 'jquery' ),
+		JXW_FIELDS_VERSION,
+		true
+	);
+}
+add_action( 'admin_enqueue_scripts', 'jxw_enqueue_hours_admin' );
+
+/**
+ * Prints one exception row. $index null renders the JS template.
+ *
+ * @param array<string, string> $ex    Exception.
+ * @param int|string            $index Index or {{index}}.
+ * @return void
+ */
+function jxw_render_exception_row( $ex, $index ) {
+	$name = 'jxw_hours_exceptions[' . $index . ']';
+	?>
+	<tr class="jxw-hours-exception">
+		<td><input type="date" name="<?php echo esc_attr( $name ); ?>[from_date]" value="<?php echo esc_attr( $ex['from_date'] ); ?>" /></td>
+		<td><input type="date" name="<?php echo esc_attr( $name ); ?>[to_date]" value="<?php echo esc_attr( $ex['to_date'] ); ?>" /></td>
+		<td>
+			<select name="<?php echo esc_attr( $name ); ?>[status]">
+				<option value="" <?php selected( $ex['status'], '' ); ?>><?php echo esc_html__( 'Ikke angivet', 'dianalund_txtdomain' ); ?></option>
+				<option value="open" <?php selected( $ex['status'], 'open' ); ?>><?php echo esc_html__( 'Åben', 'dianalund_txtdomain' ); ?></option>
+				<option value="closed" <?php selected( $ex['status'], 'closed' ); ?>><?php echo esc_html__( 'Lukket', 'dianalund_txtdomain' ); ?></option>
+			</select>
+		</td>
+		<td><input type="text" name="<?php echo esc_attr( $name ); ?>[label]" value="<?php echo esc_attr( $ex['label'] ); ?>" /></td>
+		<td><input type="time" name="<?php echo esc_attr( $name ); ?>[from]" value="<?php echo esc_attr( $ex['from'] ); ?>" /></td>
+		<td><input type="time" name="<?php echo esc_attr( $name ); ?>[to]" value="<?php echo esc_attr( $ex['to'] ); ?>" /></td>
+		<td><button type="button" class="button jxw-hours-remove-exception"><?php echo esc_html__( 'Fjern', 'dianalund_txtdomain' ); ?></button></td>
+	</tr>
+	<?php
+}
+
+/**
+ * Shop hours metabox: structured days, exceptions, holidays, coordinates.
+ * No "Arv fra center" column — the plugin never had center inheritance.
+ *
+ * @param WP_Post $post Post.
+ * @return void
+ */
+function jxw_render_hours_metabox( $post ) {
+	wp_nonce_field( 'jxw_save_hours_' . $post->ID, 'jxw_hours_nonce' );
+
+	$payload  = jxw_coerce_hours_payload( jxw_get_field( $post->ID, 'jxw_hours' ) );
+	$labels   = jxw_weekday_labels();
+	$holidays = jxw_get_field( $post->ID, 'jxw_holidays_closed' );
+	$lat      = jxw_get_field( $post->ID, 'jxw_lat' );
+	$lng      = jxw_get_field( $post->ID, 'jxw_lng' );
+	?>
+	<p class="description"><?php echo esc_html__( 'Dage uden tider vises som "–" på forsiden. Center-arv findes ikke længere.', 'dianalund_txtdomain' ); ?></p>
+	<table class="widefat jxw-hours-days">
+		<thead>
+			<tr>
+				<th><?php echo esc_html__( 'Dag', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Status', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Fra', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Til', 'dianalund_txtdomain' ); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+		<?php foreach ( jxw_weekday_keys() as $key ) : ?>
+			<?php $day = $payload['days'][ $key ]; ?>
+			<tr>
+				<th scope="row"><?php echo esc_html( $labels[ $key ] ); ?></th>
+				<td>
+					<select name="jxw_hours_days[<?php echo esc_attr( $key ); ?>][status]">
+						<option value="" <?php selected( $day['status'], '' ); ?>><?php echo esc_html__( 'Ikke angivet', 'dianalund_txtdomain' ); ?></option>
+						<option value="open" <?php selected( $day['status'], 'open' ); ?>><?php echo esc_html__( 'Åben', 'dianalund_txtdomain' ); ?></option>
+						<option value="closed" <?php selected( $day['status'], 'closed' ); ?>><?php echo esc_html__( 'Lukket', 'dianalund_txtdomain' ); ?></option>
+					</select>
+				</td>
+				<td><input type="time" name="jxw_hours_days[<?php echo esc_attr( $key ); ?>][from]" value="<?php echo esc_attr( $day['from'] ); ?>" /></td>
+				<td><input type="time" name="jxw_hours_days[<?php echo esc_attr( $key ); ?>][to]" value="<?php echo esc_attr( $day['to'] ); ?>" /></td>
+			</tr>
+		<?php endforeach; ?>
+		</tbody>
+	</table>
+
+	<h3><?php echo esc_html__( 'Undtagelser', 'dianalund_txtdomain' ); ?></h3>
+	<table class="widefat jxw-hours-exceptions" id="jxw-hours-exceptions">
+		<thead>
+			<tr>
+				<th><?php echo esc_html__( 'Fra dato', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Til dato', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Status', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Tekst', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Fra', 'dianalund_txtdomain' ); ?></th>
+				<th><?php echo esc_html__( 'Til', 'dianalund_txtdomain' ); ?></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php
+			if ( empty( $payload['exceptions'] ) ) {
+				jxw_render_exception_row( jxw_empty_exception(), 0 );
+			} else {
+				foreach ( $payload['exceptions'] as $i => $ex ) {
+					jxw_render_exception_row( $ex, (int) $i );
+				}
+			}
+			?>
+		</tbody>
+	</table>
+	<p><button type="button" class="button" id="jxw-hours-add-exception"><?php echo esc_html__( 'Tilføj undtagelse', 'dianalund_txtdomain' ); ?></button></p>
+	<table class="form-table">
+		<tr>
+			<th scope="row"><?php echo esc_html__( 'Helligdage', 'dianalund_txtdomain' ); ?></th>
+			<td>
+				<label>
+					<input type="checkbox" name="jxw_holidays_closed" value="1" <?php checked( '1', $holidays ); ?> />
+					<?php echo esc_html__( 'Lukket på danske helligdage', 'dianalund_txtdomain' ); ?>
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row"><label for="jxw_lat"><?php echo esc_html__( 'Breddegrad', 'dianalund_txtdomain' ); ?></label></th>
+			<td><input type="number" step="any" min="-90" max="90" name="jxw_lat" id="jxw_lat" value="<?php echo esc_attr( $lat ); ?>" /></td>
+		</tr>
+		<tr>
+			<th scope="row"><label for="jxw_lng"><?php echo esc_html__( 'Længdegrad', 'dianalund_txtdomain' ); ?></label></th>
+			<td><input type="number" step="any" min="-180" max="180" name="jxw_lng" id="jxw_lng" value="<?php echo esc_attr( $lng ); ?>" /></td>
+		</tr>
+	</table>
+	<?php
+}
+
+add_action( 'wp_head', 'jxw_output_legacy_schema', 30 );
+
+/**
  * Saves structured hours from the shop metabox.
  *
  * @param int $post_id Post ID.

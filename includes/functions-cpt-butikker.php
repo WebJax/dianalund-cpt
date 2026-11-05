@@ -51,72 +51,12 @@ $args = array(
 
  function butik_open_meta_options(){
 		global $post;
-		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="butiksmeta_noncename" id="butiksmeta_noncename" value="' . 
-		wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-		// Get the location data if its already been entered
-		$butik_payed_open = get_post_meta($post->ID, 'butik_aabentider', true);
-		if ($butik_payed_open == '') {
-			$butik_payed_open = "<table><tr><td>Mandag</td><td>10:00 - 18:00</td></tr><tr><td>Tirsdag</td><td>10:00 - 18:00</td></tr><tr><td>Onsdag</td><td>10:00 - 18:00</td></tr><tr><td>Torsdag</td><td>10:00 - 18:00</td></tr><tr><td>Fredag</td><td>10:00 - 18:00</td></tr><tr><td>Lørdag</td><td>10:00 - 13:00</td></tr><tr><td>Søndag</td><td>Lukket</td></tr></table>";
-		} 
-		wp_editor( $butik_payed_open, 'butik_aabentider', array(
-    'wpautop'       => true,
-    'media_buttons' => false,
-    'textarea_name' => 'butik_aabentider',
-    'textarea_rows' => 10,
-		'teeny'					=> true
-		) );
+		jxw_render_hours_metabox( $post );
  }  
 
 function butik_kontakt_meta_options(){
 		global $post;
-		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="kontaktbutiksmeta_noncename" id="kontaktbutiksmeta_noncename" value="' . 
-		wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-		// Get the location data if its already been entered
-		$butik_payed_name = get_post_meta($post->ID, 'butik_payed_name', true);
-		$butik_payed_adress = get_post_meta($post->ID, 'butik_payed_adress', true);
-		$butik_payed_postal = get_post_meta($post->ID, 'butik_payed_postal', true);
-		$butik_payed_city = get_post_meta($post->ID, 'butik_payed_city', true);
-		$butik_payed_phone = get_post_meta($post->ID, 'butik_payed_phone', true);
-		$butik_payed_mail = get_post_meta($post->ID, 'butik_payed_mail', true);
-		$butik_payed_web = get_post_meta($post->ID, 'butik_payed_web', true);
-		$butik_payed_fb = get_post_meta($post->ID, 'butik_payed_fb', true);
-		$butik_payed_insta = get_post_meta($post->ID, 'butik_payed_insta', true);
-		$butik_payed_payedbutik = get_post_meta($post->ID, 'butik_payed_payedbutik', true);
-	
-		$sc = [
-			0 => 'Intet',
-			1 => 'Sølv',
-			2 => 'Guld',
-			3 => 'Platin',
-			4 => 'Anden aftale',
-		];
-	
-		?>
-		<table>
-			<tr><td><label for="butik_payed_name">Butiksnavn:</label><br/><input type="text" value="<?php echo $butik_payed_name;?>" name="butik_payed_name" id="butik_payed_name"/></td></tr>
-			<tr><td><label for="butik_payed_adress">Adresse:</label><br/><input type="text" value="<?php echo $butik_payed_adress;?>" name="butik_payed_adress" id="butik_payed_adress"/></td></tr>
-			<tr><td><label for="butik_payed_postal">Postnr:</label><br/><input type="text" value="<?php echo $butik_payed_postal;?>" name="butik_payed_postal" id="butik_payed_postal"/></td></tr>
-			<tr><td><label for="butik_payed_city">By:</label><br/><input type="text" value="<?php echo $butik_payed_city;?>" name="butik_payed_city" id="butik_payed_city"/></td></tr>
-			<tr><td><label for="butik_payed_phone">Telefon:</label><br/><input type="text" value="<?php echo $butik_payed_phone;?>" name="butik_payed_phone" id="butik_payed_phone"/></td></tr>
-			<tr><td><label for="butik_payed_mail">Email:</label><br/><input type="text" value="<?php echo $butik_payed_mail;?>" name="butik_payed_mail" id="butik_payed_mail"/></td></tr>
-			<tr><td><label for="butik_payed_web">Hjemmeside:</label><br/><input type="text" value="<?php echo $butik_payed_web;?>" name="butik_payed_web" id="butik_payed_web"/></td></tr>
-			<tr><td><label for="butik_payed_fb">Facebook:</label><br/><input type="text" value="<?php echo $butik_payed_fb;?>" name="butik_payed_fb" id="butik_payed_fb"/></td></tr>
-			<tr><td><label for="butik_payed_insta">Instagram:</label><br/><input type="text" value="<?php echo $butik_payed_insta;?>" name="butik_payed_insta" id="butik_payed_insta"/></td></tr>
-			<tr><td><label for="butik_payed_payedbutik">Abonnent:</label><br/>
-				<select name="butik_payed_payedbutik" id="butik_payed_payedbutik">
-					<?php
-						foreach ($sc as $value) {
-							$selected = ($value == $butik_payed_payedbutik) ? ' selected=selected' : '';
-							echo '<option value="'.$value.'"'.$selected.'>'.$value.'</option>';
-						}
-					?>				
-				</select></td></tr>
-		</table>
-<?php
+		jxw_render_contact_metabox( $post );
  }  
 
 function butik_logo_meta_options() {
@@ -146,10 +86,10 @@ function save_butiks_meta($post_id, $post) {
 	if ( isset($_POST['butiksmeta_noncename']) && !wp_verify_nonce( $_POST['butiksmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
-	if ( isset($_POST['butiksmeta_noncename']) && !wp_verify_nonce( $_POST['kontaktbutiksmeta_noncename'], plugin_basename(__FILE__) )) {
+	if ( isset($_POST['kontaktbutiksmeta_noncename']) && !wp_verify_nonce( $_POST['kontaktbutiksmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
-	if ( isset($_POST['butiksmeta_noncename']) && !wp_verify_nonce( $_POST['logobutiksmeta_noncename'], plugin_basename(__FILE__) )) {
+	if ( isset($_POST['logobutiksmeta_noncename']) && !wp_verify_nonce( $_POST['logobutiksmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
 
@@ -160,17 +100,6 @@ function save_butiks_meta($post_id, $post) {
 	// OK, we're authenticated: we need to find and save the data
 	// We'll put it into an array to make it easier to loop though.
 	
-	if (isset($_POST['butik_aabentider'])) $events_meta['butik_aabentider'] = $_POST['butik_aabentider'];
-	if (isset($_POST['butik_payed_name'])) $events_meta['butik_payed_name'] = $_POST['butik_payed_name'];
-	if (isset($_POST['butik_payed_adress'])) $events_meta['butik_payed_adress'] = $_POST['butik_payed_adress'];
-	if (isset($_POST['butik_payed_postal'])) $events_meta['butik_payed_postal'] = $_POST['butik_payed_postal'];
-	if (isset($_POST['butik_payed_city'])) $events_meta['butik_payed_city'] = $_POST['butik_payed_city'];
-	if (isset($_POST['butik_payed_phone'])) $events_meta['butik_payed_phone'] = $_POST['butik_payed_phone'];
-	if (isset($_POST['butik_payed_mail'])) $events_meta['butik_payed_mail'] = $_POST['butik_payed_mail'];
-	if (isset($_POST['butik_payed_web'])) $events_meta['butik_payed_web'] = $_POST['butik_payed_web'];
-	if (isset($_POST['butik_payed_fb'])) $events_meta['butik_payed_fb'] = $_POST['butik_payed_fb'];
-	if (isset($_POST['butik_payed_insta'])) $events_meta['butik_payed_insta'] = $_POST['butik_payed_insta'];
-	if (isset($_POST['butik_payed_payedbutik'])) {$events_meta['butik_payed_payedbutik'] = $_POST['butik_payed_payedbutik'];} else {$events_meta['butik_payed_payedbutik'] = "Intet";};
 	if (isset($_POST['allround-cpt_logo_id'])) $events_meta['allround-cpt_logo_id'] = $_POST['allround-cpt_logo_id'];		
 	
 	// Add values of $events_meta as custom fields
@@ -219,6 +148,9 @@ function butik_custom_columns($column){
 			break;
     case "betalt":
 			$abonnement = get_post_meta($post->ID, 'butik_payed_payedbutik', true);
+			if ( '' === (string) $abonnement ) {
+				$abonnement = jxw_is_paid( $post->ID ) ? '1' : '';
+			}
 			echo ("" != $abonnement) ? "<b>".$abonnement."</b>" : "Intet solgt";
       break;
     case "butikskategori":
@@ -303,10 +235,13 @@ function butikker_quick_edit_data($post_id) {
     $post = get_post($post_id);
     if (isset($_POST['betalt_set']) && ($post->post_type != 'revision')) {
         $widget_set_id = esc_attr($_POST['betalt_set']);
-        if ($widget_set_id)
-            update_post_meta( $post_id, 'butik_payed_payedbutik', $widget_set_id);     
-        else
-            delete_post_meta( $post_id, 'butik_payed_payedbutik');     
+        if ($widget_set_id) {
+            update_post_meta( $post_id, 'butik_payed_payedbutik', $widget_set_id);
+            update_post_meta( $post_id, 'jxw_paid', jxw_normalize_paid_value( $widget_set_id ) );
+        } else {
+            delete_post_meta( $post_id, 'butik_payed_payedbutik');
+            update_post_meta( $post_id, 'jxw_paid', '' );
+        }     
     }       
     return $widget_set_id;  
 }

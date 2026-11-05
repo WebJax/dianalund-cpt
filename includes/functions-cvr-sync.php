@@ -781,6 +781,23 @@ function dianalund_cvr_sync_apply_to_post( $post_id, $normalized, $post_type ) {
         if ( isset( $normalized[ $cvr_key ] ) && '' !== (string) $normalized[ $cvr_key ] ) {
             update_post_meta( $post_id, $meta_key, sanitize_text_field( (string) $normalized[ $cvr_key ] ) );
             $updated[] = $meta_key;
+            $jxw_key = function_exists( 'jxw_cvr_to_field_key' ) ? jxw_cvr_to_field_key( $cvr_key ) : '';
+            if ( '' !== $jxw_key ) {
+                $callback = 'jxw_sanitize_text';
+                if ( 'jxw_postal' === $jxw_key ) {
+                    $callback = 'jxw_sanitize_postal';
+                } elseif ( 'jxw_phone' === $jxw_key ) {
+                    $callback = 'jxw_sanitize_phone';
+                } elseif ( 'jxw_email' === $jxw_key ) {
+                    $callback = 'jxw_sanitize_email_field';
+                } elseif ( 'jxw_web' === $jxw_key ) {
+                    $callback = 'jxw_sanitize_url_field';
+                }
+                if ( function_exists( $callback ) ) {
+                    update_post_meta( $post_id, $jxw_key, call_user_func( $callback, $normalized[ $cvr_key ] ) );
+                    $updated[] = $jxw_key;
+                }
+            }
         }
     }
 

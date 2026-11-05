@@ -82,52 +82,7 @@
 
 function kontakt_meta_options(){
 		global $post;
-		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="kontakterhvervsmeta_noncename" id="kontakterhvervsmeta_noncename" value="' . 
-		wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-		// Get the location data if its already been entered
-		$bizz_payed_name = get_post_meta($post->ID, 'bizz_payed_name', true);
-		$bizz_payed_adress = get_post_meta($post->ID, 'bizz_payed_adress', true);
-		$bizz_payed_postal = get_post_meta($post->ID, 'bizz_payed_postal', true);
-		$bizz_payed_city = get_post_meta($post->ID, 'bizz_payed_city', true);
-		$bizz_payed_phone = get_post_meta($post->ID, 'bizz_payed_phone', true);
-		$bizz_payed_mail = get_post_meta($post->ID, 'bizz_payed_mail', true);
-		$bizz_payed_web = get_post_meta($post->ID, 'bizz_payed_web', true);
-		$bizz_payed_fb = get_post_meta($post->ID, 'bizz_payed_fb', true);
-  	$bizz_payed_insta = get_post_meta($post->ID, 'bizz_payed_insta', true);
-		$bizz_payed_payedbizz = get_post_meta($post->ID, 'bizz_payed_payedbizz', true);
-	
-		$sc = [
-			0 => 'Intet',
-			1 => 'Sølv',
-			2 => 'Guld',
-			3 => 'Platin',
-			4 => 'Anden aftale',
-		];
-	
-		?>
-		<table>
-			<tr><td><label for="bizz_payed_name">Virksomhedsnavn:</label><br/><input type="text" value="<?php echo $bizz_payed_name;?>" name="bizz_payed_name" id="bizz_payed_name"/></td></tr>
-			<tr><td><label for="bizz_payed_adress">Adresse:</label><br/><input type="text" value="<?php echo $bizz_payed_adress;?>" name="bizz_payed_adress" id="bizz_payed_adress"/></td></tr>
-			<tr><td><label for="bizz_payed_postal">Postnr:</label><br/><input type="text" value="<?php echo $bizz_payed_postal;?>" name="bizz_payed_postal" id="bizz_payed_postal"/></td></tr>
-			<tr><td><label for="bizz_payed_city">By:</label><br/><input type="text" value="<?php echo $bizz_payed_city;?>" name="bizz_payed_city" id="bizz_payed_city"/></td></tr>
-			<tr><td><label for="bizz_payed_phone">Telefon:</label><br/><input type="text" value="<?php echo $bizz_payed_phone;?>" name="bizz_payed_phone" id="bizz_payed_phone"/></td></tr>
-			<tr><td><label for="bizz_payed_mail">Email:</label><br/><input type="text" value="<?php echo $bizz_payed_mail;?>" name="bizz_payed_mail" id="bizz_payed_mail"/></td></tr>
-			<tr><td><label for="bizz_payed_web">Hjemmeside:</label><br/><input type="text" value="<?php echo $bizz_payed_web;?>" name="bizz_payed_web" id="bizz_payed_web"/></td></tr>
-			<tr><td><label for="bizz_payed_fb">Facebook:</label><br/><input type="text" value="<?php echo $bizz_payed_fb;?>" name="bizz_payed_fb" id="bizz_payed_fb"/></td></tr>
-			<tr><td><label for="bizz_payed_insta">Instagram:</label><br/><input type="text" value="<?php echo $bizz_payed_insta;?>" name="bizz_payed_insta" id="bizz_payed_insta"/></td></tr>
-			<tr><td><label for="bizz_payed_payedbizz">Abonnent:</label><br/>
-				<select name="bizz_payed_payedbizz" id="bizz_payed_payedbizz">
-					<?php
-						foreach ($sc as $value) {
-							$selected = ($value == $bizz_payed_payedbizz) ? ' selected=selected' : '';
-							echo '<option value="'.$value.'"'.$selected.'>'.$value.'</option>';
-						}
-					?>				
-				</select></td></tr>
-		</table>
-<?php
+		jxw_render_contact_metabox( $post );
  }  
 
 function logo_meta_options() {
@@ -157,10 +112,10 @@ function save_erhvervs_meta($post_id, $post) {
 	if ( isset($_POST['erhvervsmeta_noncename']) && !wp_verify_nonce( $_POST['erhvervsmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
-	if ( isset($_POST['erhvervsmeta_noncename']) && !wp_verify_nonce( $_POST['kontakterhvervsmeta_noncename'], plugin_basename(__FILE__) )) {
+	if ( isset($_POST['kontakterhvervsmeta_noncename']) && !wp_verify_nonce( $_POST['kontakterhvervsmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
-	if ( isset($_POST['erhvervsmeta_noncename']) && !wp_verify_nonce( $_POST['logoerhvervsmeta_noncename'], plugin_basename(__FILE__) )) {
+	if ( isset($_POST['logoerhvervsmeta_noncename']) && !wp_verify_nonce( $_POST['logoerhvervsmeta_noncename'], plugin_basename(__FILE__) )) {
 		return $post->ID;
 	}
 
@@ -172,16 +127,6 @@ function save_erhvervs_meta($post_id, $post) {
 	// We'll put it into an array to make it easier to loop though.
 	
 	if (isset($_POST['erhverv_aabentider'])) $events_meta['erhverv_aabentider'] = $_POST['erhverv_aabentider'];
-	if (isset($_POST['bizz_payed_name'])) $events_meta['bizz_payed_name'] = $_POST['bizz_payed_name'];
-	if (isset($_POST['bizz_payed_adress'])) $events_meta['bizz_payed_adress'] = $_POST['bizz_payed_adress'];
-	if (isset($_POST['bizz_payed_postal'])) $events_meta['bizz_payed_postal'] = $_POST['bizz_payed_postal'];
-	if (isset($_POST['bizz_payed_city'])) $events_meta['bizz_payed_city'] = $_POST['bizz_payed_city'];
-	if (isset($_POST['bizz_payed_phone'])) $events_meta['bizz_payed_phone'] = $_POST['bizz_payed_phone'];
-	if (isset($_POST['bizz_payed_mail'])) $events_meta['bizz_payed_mail'] = $_POST['bizz_payed_mail'];
-	if (isset($_POST['bizz_payed_web'])) $events_meta['bizz_payed_web'] = $_POST['bizz_payed_web'];
-	if (isset($_POST['bizz_payed_fb'])) $events_meta['bizz_payed_fb'] = $_POST['bizz_payed_fb'];
-	if (isset($_POST['bizz_payed_insta'])) $events_meta['bizz_payed_insta'] = $_POST['bizz_payed_insta'];
-	if (isset($_POST['bizz_payed_payedbizz'])) {$events_meta['bizz_payed_payedbizz'] = $_POST['bizz_payed_payedbizz'];} else {$events_meta['bizz_payed_payedbizz'] = "Intet";};
 	if (isset($_POST['bizz_aabning_check'])) {$events_meta['bizz_aabning_check'] = $_POST['bizz_aabning_check'];} else {$events_meta['bizz_aabning_check'] = "";};
 	if (isset($_POST['allround-cpt_logo_id'])) $events_meta['allround-cpt_logo_id'] =$_POST['allround-cpt_logo_id'];
 	
@@ -228,7 +173,11 @@ function erhverv_custom_columns($column){
 			echo erhverv_prefix_wcount();
 			break;
     case "betalt":
-			echo get_post_meta($post->ID, 'bizz_payed_payedbizz', true);
+			$abonnement = get_post_meta($post->ID, 'bizz_payed_payedbizz', true);
+			if ( '' === (string) $abonnement ) {
+				$abonnement = jxw_is_paid( $post->ID ) ? '1' : '';
+			}
+			echo $abonnement;
       break;
     case "erhvervskategori":
       echo get_the_term_list($post->ID, 'category', '', ', ','');
@@ -312,10 +261,13 @@ function erhverv_quick_edit_data($post_id) {
     $post = get_post($post_id);
     if (isset($_POST['betalt_set']) && ($post->post_type != 'revision')) {
         $widget_set_id = esc_attr($_POST['betalt_set']);
-        if ($widget_set_id)
-            update_post_meta( $post_id, 'bizz_payed_payedbizz', $widget_set_id);     
-        else
-            delete_post_meta( $post_id, 'bizz_payed_payedbizz');     
+        if ($widget_set_id) {
+            update_post_meta( $post_id, 'bizz_payed_payedbizz', $widget_set_id);
+            update_post_meta( $post_id, 'jxw_paid', jxw_normalize_paid_value( $widget_set_id ) );
+        } else {
+            delete_post_meta( $post_id, 'bizz_payed_payedbizz');
+            update_post_meta( $post_id, 'jxw_paid', '' );
+        }     
     }       
     return $widget_set_id;  
 }
