@@ -86,6 +86,15 @@ add_filter( 'jxw_output_legacy_schema', '__return_false' );
 
 SEO-felter for kategorier (title, description, robots) hører til jxw-seo og findes ikke her.
 
+Pluginet har **ingen** kategoriarkiv-skabelon. Temaet viser introteksten, f.eks. i `category.php`:
+
+```php
+$intro = jxw_get_term_intro( get_queried_object_id() );
+if ( '' !== $intro ) {
+	echo '<div class="jxw-term-intro">' . apply_filters( 'the_content', $intro ) . '</div>';
+}
+```
+
 ## PHP API til jxw-seo
 
 ```php

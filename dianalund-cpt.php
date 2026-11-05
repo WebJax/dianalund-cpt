@@ -34,6 +34,7 @@ require_once dirname( __FILE__ ) . '/includes/class-cpt-gone-redirects.php';
 require_once dirname( __FILE__ ) . '/includes/jxw-fields.php';
 require_once dirname( __FILE__ ) . '/includes/jxw-hours.php';
 require_once dirname( __FILE__ ) . '/includes/jxw-migrate.php';
+require_once dirname( __FILE__ ) . '/includes/jxw-term-intro.php';
 
 function dianalund_cpt_boot_gone_redirects() {
     $redirects = new Cpt_Gone_Redirects(
