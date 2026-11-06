@@ -237,14 +237,15 @@ function erhverv_quick_edit($column_name, $post_type) {
 add_action('save_post', 'erhverv_quick_edit_data');
  
 function erhverv_quick_edit_data($post_id) {
-    // are we at the correct page
-    if (!is_admin()) {
+    // Quick edit runs in wp-admin. REST saves do not load get_current_screen().
+    if ( ! is_admin() || ! function_exists( 'get_current_screen' ) ) {
       return;
     }
     $screen = get_current_screen();
-    if ($screen->post_type != "erhvervsside") {
+    if ( ! $screen || ! isset( $screen->post_type ) || $screen->post_type != "erhvervsside" ) {
       return;
     }
+
     // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
     // to do anything
     if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) 
@@ -255,7 +256,7 @@ function erhverv_quick_edit_data($post_id) {
             return $post_id;
     } else {
         if ( !current_user_can( 'edit_post', $post_id ) )
-        return $post_id;
+        	return $post_id;
     }   
     // OK, we're authenticated: we need to find and save the data
     $post = get_post($post_id);
@@ -268,6 +269,7 @@ function erhverv_quick_edit_data($post_id) {
             delete_post_meta( $post_id, 'bizz_payed_payedbizz');
             update_post_meta( $post_id, 'jxw_paid', '' );
         }     
-    }       
-    return $widget_set_id;  
+    }
+
+    return $widget_set_id ?? '';  
 }
