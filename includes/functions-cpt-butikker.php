@@ -212,13 +212,11 @@ add_action('save_post', 'butikker_quick_edit_data');
  
 function butikker_quick_edit_data($post_id) {
     // are we at the correct page
-    if (!is_admin()) {
-      return;
-    }
     $screen = get_current_screen();
-    if ($screen->post_type != "butiksside") {
+    if (!is_admin() || !isset($screen->post_type) || $screen->post_type != "butiksside") {
       return;
     }
+
     // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
     // to do anything
     if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) 
@@ -243,6 +241,6 @@ function butikker_quick_edit_data($post_id) {
             update_post_meta( $post_id, 'jxw_paid', '' );
         }     
     }       
-    return $widget_set_id;  
+    return $widget_set_id ?? '';  
 }
 
