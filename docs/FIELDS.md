@@ -29,6 +29,35 @@ Intern markeringsnøgle (ikke REST, ikke i feltsættet til jxw-seo): `_jxw_field
 
 ## Åbningstider (`jxw_hours`)
 
+JSON-objekt. Forbrugere skal kalde `jxw_normalize_hours( $raw, $date = null )` — den returnerer altid en liste af tidsrum pr. dag for den uge, der gælder på `$date` (i dag hvis udeladt).
+
+To tilstande:
+
+- Én uge med `applies: "always"` (standard, også ældre `{ "days": … }` uden `weeks`).
+- To uger med `applies: "odd"` og `"even"` — ISO-8601 ugenummer (uge 1, 3, 5… er ulige).
+
+```json
+{
+  "weeks": [
+    {
+      "id": "odd",
+      "label": "Ulige uger",
+      "applies": "odd",
+      "days": {
+        "monday": { "status": "open", "from": "10:00", "to": "18:00" }
+      }
+    },
+    {
+      "id": "even",
+      "label": "Lige uger",
+      "applies": "even",
+      "days": {
+        "monday": { "status": "open", "from": "10:00", "to": "16:00" }
+      }
+    }
+  ],
+  "days": {
+    "monday": { "status": "open", "from": "10:00", "to": "18:00" }
 JSON-objekt. Forbrugere skal kalde `jxw_normalize_hours()` — den returnerer altid en liste af tidsrum pr. dag, også når der kun er ét.
 
 ```json
@@ -55,6 +84,7 @@ JSON-objekt. Forbrugere skal kalde `jxw_normalize_hours()` — den returnerer al
 }
 ```
 
+`days` på topniveau er den uge, der gælder i dag (kompatibilitet). Kilde til sandhed er `weeks`. `applies`: `always` | `odd` | `even`. `status`: `open` | `closed` | tom. Tid: `HH:MM`. Dato: `YYYY-MM-DD`.
 `status`: `open` | `closed` | tom (`""` = ikke angivet). Tid: `HH:MM`. Dato: `YYYY-MM-DD`. Dage uden tider vises som "–" i tabellen og udelades i schema `regular`.
 
 Normalizer-output:
@@ -67,6 +97,13 @@ array(
     ),
   ),
   'exceptions' => array( /* samme nøgler som ovenfor */ ),
+  'applies' => 'odd',
+)
+```
+
+Schema `regular` er kun den uge, der gælder i dag — ikke begge mønstre som om de gjaldt hver uge. `jxw_get_opening_hours_specs( $post_id )` → `array( 'regular' => array(), 'special' => array() )`.
+
+Frontend: `jxw_get_hours_table_html()` viser én tabel, eller to med overskrifterne “Ulige uger” / “Lige uger”. `idag` sidder kun på den aktuelle ISO-uge.
 )
 ```
 
@@ -100,6 +137,9 @@ if ( '' !== $intro ) {
 ```php
 jxw_get_field( int $post_id, string $field );          // string
 jxw_is_paid( int $post_id );                           // bool
+jxw_normalize_hours( $raw, $date = null );             // array{days, exceptions, applies}
+jxw_week_for_date( $payload, $date );                  // uge der gælder på datoen
+jxw_iso_week_parity( $date );                          // odd|even (ISO-8601)
 jxw_normalize_hours( $raw );                           // array{days, exceptions}
 jxw_get_opening_hours_specs( int $post_id );           // array{regular, special}
 jxw_get_hours_table_html( int $post_id );              // string, klasser uændrede

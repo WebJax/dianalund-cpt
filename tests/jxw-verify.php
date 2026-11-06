@@ -268,6 +268,48 @@ jxw_migrate_one_post( 22, false );
 jxw_assert( 'Forening C' === $GLOBALS['jxw_test_meta'][22]['jxw_name'], 'Forening navn kopieret' );
 jxw_assert( empty( $GLOBALS['jxw_test_meta'][22]['jxw_paid'] ), 'Forening uden paid-kilde' );
 
+jxw_assert( 'odd' === jxw_iso_week_parity( '2026-01-01' ), '2026-01-01 er ISO-uge 1 (ulige)' );
+jxw_assert( 'even' === jxw_iso_week_parity( '2026-01-05' ), '2026-01-05 er ISO-uge 2 (lige)' );
+
+$legacy = jxw_coerce_hours_payload( $parsed );
+jxw_assert( 1 === count( $legacy['weeks'] ) && 'always' === $legacy['weeks'][0]['applies'], 'Ældre days bliver always-uge' );
+jxw_assert( 'Man–Ons 10:00–18:00, Tor Lukket, Fre 10:00–18:00, Lør 10:00–13:00, Søn Lukket' === jxw_week_summary_text( $parsed['days'] ), 'Uge-resume grupperer ens dage' );
+
+$odd_days  = $parsed['days'];
+$even_days = $parsed['days'];
+$even_days['monday'] = array( 'status' => 'open', 'from' => '10:00', 'to' => '16:00' );
+$parity_raw = array(
+	'weeks' => array(
+		array( 'applies' => 'odd', 'days' => $odd_days ),
+		array( 'applies' => 'even', 'days' => $even_days ),
+	),
+	'exceptions' => array(),
+);
+$odd_norm  = jxw_normalize_hours( $parity_raw, '2026-01-01' );
+$even_norm = jxw_normalize_hours( $parity_raw, '2026-01-05' );
+jxw_assert( 'odd' === $odd_norm['applies'] && '18:00' === $odd_norm['days']['monday'][0]['to'], 'Ulige uge 1. januar' );
+jxw_assert( 'even' === $even_norm['applies'] && '16:00' === $even_norm['days']['monday'][0]['to'], 'Lige uge 5. januar' );
+
+$only_odd = jxw_coerce_hours_payload(
+	array(
+		'weeks' => array(
+			array( 'applies' => 'odd', 'days' => $odd_days ),
+		),
+	)
+);
+jxw_assert( 1 === count( $only_odd['weeks'] ) && 'always' === $only_odd['weeks'][0]['applies'], 'Enkelt odd-uge bliver always' );
+
+$GLOBALS['jxw_test_meta'][30] = array(
+	'jxw_hours' => jxw_sanitize_hours_payload( $parity_raw ),
+);
+$table_parity = jxw_get_hours_table_html( 30 );
+jxw_assert( false !== strpos( $table_parity, 'Ulige uger' ) && false !== strpos( $table_parity, 'Lige uger' ), 'Frontend viser begge ugeoverskrifter' );
+jxw_assert( 2 === substr_count( $table_parity, 'butik-aabentider-tabel' ), 'To tabeller ved lige/ulige' );
+
+$decoded_hours = json_decode( $GLOBALS['jxw_test_meta'][30]['jxw_hours'], true );
+jxw_assert( isset( $decoded_hours['weeks'][0]['applies'], $decoded_hours['weeks'][1]['applies'] ), 'Gemt JSON har weeks' );
+jxw_assert( 'odd' === $decoded_hours['weeks'][0]['applies'] && 'even' === $decoded_hours['weeks'][1]['applies'], 'Gemt rækkefølge er odd, even' );
+
 echo "\n";
 if ( $failures > 0 ) {
 	echo "FAILED: {$failures} assertion(s)\n";

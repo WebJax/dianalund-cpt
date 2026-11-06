@@ -80,6 +80,233 @@ function jxw_empty_days() {
 }
 
 /**
+ * Allowed week-pattern rules.
+ *
+ * @return string[]
+ */
+function jxw_week_applies_values() {
+	return array( 'always', 'odd', 'even' );
+}
+
+/**
+ * Localized label for a week rule.
+ *
+ * @param string $applies always|odd|even.
+ * @return string
+ */
+function jxw_week_label( $applies ) {
+	if ( 'odd' === $applies ) {
+		return __( 'Ulige uger', 'dianalund_txtdomain' );
+	}
+	if ( 'even' === $applies ) {
+		return __( 'Lige uger', 'dianalund_txtdomain' );
+	}
+
+	return __( 'Alle uger', 'dianalund_txtdomain' );
+}
+
+/**
+ * Empty week pattern.
+ *
+ * @param string                         $applies always|odd|even.
+ * @param array<string, array>|null      $days    Optional day map.
+ * @return array{id:string,label:string,applies:string,days:array}
+ */
+function jxw_empty_week( $applies = 'always', $days = null ) {
+	if ( ! in_array( $applies, jxw_week_applies_values(), true ) ) {
+		$applies = 'always';
+	}
+
+	return array(
+		'id'      => $applies,
+		'label'   => jxw_week_label( $applies ),
+		'applies' => $applies,
+		'days'    => is_array( $days ) ? $days : jxw_empty_days(),
+	);
+}
+
+/**
+ * ISO-8601 week parity for a date. Odd = week 1, 3, 5…
+ *
+ * @param string $date YYYY-MM-DD.
+ * @return string odd|even
+ */
+function jxw_iso_week_parity( $date ) {
+	if ( ! jxw_valid_date( $date ) ) {
+		$date = jxw_today();
+	}
+
+	$week = (int) gmdate( 'W', strtotime( $date . ' UTC' ) );
+
+	return ( 0 === ( $week % 2 ) ) ? 'even' : 'odd';
+}
+
+/**
+ * Sanitizes one week's days map.
+ *
+ * @param mixed $source Raw days.
+ * @return array<string, array<string, string>>
+ */
+function jxw_sanitize_week_days( $source ) {
+	$days = jxw_empty_days();
+	if ( ! is_array( $source ) ) {
+		return $days;
+	}
+
+	foreach ( jxw_weekday_keys() as $key ) {
+		if ( isset( $source[ $key ] ) ) {
+			$days[ $key ] = jxw_sanitize_day_row( $source[ $key ] );
+			unset( $days[ $key ]['inherited'] );
+		}
+	}
+
+	return $days;
+}
+
+/**
+ * Canonical week list: either one always-week or odd+even.
+ *
+ * @param mixed $raw_weeks     Raw weeks array.
+ * @param array $fallback_days Days used when weeks are missing.
+ * @return array<int, array{id:string,label:string,applies:string,days:array}>
+ */
+function jxw_sanitize_weeks( $raw_weeks, $fallback_days ) {
+	$by_applies = array();
+
+	if ( is_array( $raw_weeks ) ) {
+		foreach ( $raw_weeks as $week ) {
+			if ( ! is_array( $week ) ) {
+				continue;
+			}
+			$applies = isset( $week['applies'] ) ? sanitize_text_field( (string) $week['applies'] ) : '';
+			if ( ! in_array( $applies, jxw_week_applies_values(), true ) ) {
+				$applies = 'always';
+			}
+			$source = isset( $week['days'] ) && is_array( $week['days'] ) ? $week['days'] : $week;
+			$by_applies[ $applies ] = jxw_empty_week( $applies, jxw_sanitize_week_days( $source ) );
+		}
+	}
+
+	if ( isset( $by_applies['odd'] ) && isset( $by_applies['even'] ) ) {
+		return array( $by_applies['odd'], $by_applies['even'] );
+	}
+
+	if ( isset( $by_applies['always'] ) ) {
+		return array( $by_applies['always'] );
+	}
+
+	if ( isset( $by_applies['odd'] ) ) {
+		return array( jxw_empty_week( 'always', $by_applies['odd']['days'] ) );
+	}
+
+	if ( isset( $by_applies['even'] ) ) {
+		return array( jxw_empty_week( 'always', $by_applies['even']['days'] ) );
+	}
+
+	return array( jxw_empty_week( 'always', $fallback_days ) );
+}
+
+/**
+ * Picks the week that applies on a date.
+ *
+ * @param array  $payload Coerced payload with weeks.
+ * @param string $date    YYYY-MM-DD.
+ * @return array{id:string,label:string,applies:string,days:array}
+ */
+function jxw_week_for_date( $payload, $date ) {
+	$weeks = isset( $payload['weeks'] ) && is_array( $payload['weeks'] ) ? $payload['weeks'] : array();
+	if ( empty( $weeks ) ) {
+		$days = isset( $payload['days'] ) && is_array( $payload['days'] ) ? $payload['days'] : jxw_empty_days();
+
+		return jxw_empty_week( 'always', $days );
+	}
+
+	$parity = jxw_iso_week_parity( $date );
+	$always = null;
+	$match  = null;
+
+	foreach ( $weeks as $week ) {
+		if ( ! is_array( $week ) ) {
+			continue;
+		}
+		$applies = isset( $week['applies'] ) ? $week['applies'] : '';
+		if ( 'always' === $applies ) {
+			$always = $week;
+		}
+		if ( $parity === $applies ) {
+			$match = $week;
+		}
+	}
+
+	if ( is_array( $match ) ) {
+		return $match;
+	}
+	if ( is_array( $always ) ) {
+		return $always;
+	}
+
+	return $weeks[0];
+}
+
+/**
+ * Compact summary of a week for the collapsed metabox header.
+ *
+ * @param array<string, array<string, string>> $days Day map.
+ * @return string
+ */
+function jxw_week_summary_text( $days ) {
+	$short = array(
+		'monday'    => 'Man',
+		'tuesday'   => 'Tir',
+		'wednesday' => 'Ons',
+		'thursday'  => 'Tor',
+		'friday'    => 'Fre',
+		'saturday'  => 'Lør',
+		'sunday'    => 'Søn',
+	);
+	$slots = array();
+	foreach ( jxw_weekday_keys() as $key ) {
+		$day = isset( $days[ $key ] ) ? $days[ $key ] : jxw_empty_day();
+		if ( 'closed' === $day['status'] ) {
+			$text = __( 'Lukket', 'dianalund_txtdomain' );
+		} elseif ( 'open' === $day['status'] && jxw_valid_time( $day['from'] ) && jxw_valid_time( $day['to'] ) ) {
+			$text = $day['from'] . '–' . $day['to'];
+		} else {
+			$text = '–';
+		}
+		$slots[] = array(
+			'key'  => $key,
+			'text' => $text,
+		);
+	}
+
+	$groups = array();
+	foreach ( $slots as $slot ) {
+		$last_index = count( $groups ) - 1;
+		if ( $last_index >= 0 && $groups[ $last_index ]['text'] === $slot['text'] ) {
+			$groups[ $last_index ]['end'] = $slot['key'];
+			continue;
+		}
+		$groups[] = array(
+			'start' => $slot['key'],
+			'end'   => $slot['key'],
+			'text'  => $slot['text'],
+		);
+	}
+
+	$parts = array();
+	foreach ( $groups as $group ) {
+		$label = $short[ $group['start'] ];
+		if ( $group['start'] !== $group['end'] ) {
+			$label .= '–' . $short[ $group['end'] ];
+		}
+		$parts[] = $label . ' ' . $group['text'];
+	}
+
+	return implode( ', ', $parts );
+}
+
+/**
  * Whether a string is HH:MM.
  *
  * @param string $time Time.
@@ -236,16 +463,26 @@ function jxw_sanitize_exception_row( $row ) {
 /**
  * Coerces stored JSON, array or HTML into a canonical hours payload.
  *
+ * Legacy `{ days }` becomes one `always` week. Consumers should resolve a
+ * date with jxw_week_for_date() / jxw_normalize_hours( $raw, $date ).
+ *
+ * @param mixed $raw Stored value.
+ * @return array{weeks: array, days: array, exceptions: array}
  * @param mixed $raw Stored value.
  * @return array{days: array, exceptions: array}
  */
 function jxw_coerce_hours_payload( $raw ) {
 	$days       = jxw_empty_days();
 	$exceptions = array();
+	$raw_weeks  = null;
 
 	if ( is_string( $raw ) ) {
 		$trim = trim( $raw );
 		if ( '' === $trim ) {
+			$week = jxw_empty_week( 'always', $days );
+
+			return array(
+				'weeks'      => array( $week ),
 			return array(
 				'days'       => $days,
 				'exceptions' => $exceptions,
@@ -256,17 +493,30 @@ function jxw_coerce_hours_payload( $raw ) {
 		if ( is_array( $decoded ) ) {
 			$raw = $decoded;
 		} else {
+			$raw = jxw_parse_hours_html( $trim );
 			return jxw_parse_hours_html( $trim );
 		}
 	}
 
 	if ( ! is_array( $raw ) ) {
+		$week = jxw_empty_week( 'always', $days );
+
+		return array(
+			'weeks'      => array( $week ),
 		return array(
 			'days'       => $days,
 			'exceptions' => $exceptions,
 		);
 	}
 
+	if ( isset( $raw['weeks'] ) && is_array( $raw['weeks'] ) ) {
+		$raw_weeks = $raw['weeks'];
+	}
+
+	$source_days = array();
+	if ( isset( $raw['days'] ) && is_array( $raw['days'] ) ) {
+		$source_days = $raw['days'];
+	} elseif ( null === $raw_weeks ) {
 	$source_days = array();
 	if ( isset( $raw['days'] ) && is_array( $raw['days'] ) ) {
 		$source_days = $raw['days'];
@@ -277,6 +527,13 @@ function jxw_coerce_hours_payload( $raw ) {
 	foreach ( jxw_weekday_keys() as $key ) {
 		if ( isset( $source_days[ $key ] ) ) {
 			$days[ $key ] = jxw_sanitize_day_row( $source_days[ $key ] );
+			unset( $days[ $key ]['inherited'] );
+		}
+	}
+
+	$weeks     = jxw_sanitize_weeks( $raw_weeks, $days );
+	$resolved  = jxw_week_for_date( array( 'weeks' => $weeks ), jxw_today() );
+
 		}
 	}
 
@@ -290,6 +547,8 @@ function jxw_coerce_hours_payload( $raw ) {
 	}
 
 	return array(
+		'weeks'      => $weeks,
+		'days'       => $resolved['days'],
 		'days'       => $days,
 		'exceptions' => $exceptions,
 	);
@@ -305,6 +564,14 @@ function jxw_sanitize_hours_payload( $value ) {
 	$payload = jxw_coerce_hours_payload( $value );
 	foreach ( $payload['days'] as $key => $day ) {
 		unset( $payload['days'][ $key ]['inherited'] );
+	}
+	foreach ( $payload['weeks'] as $i => $week ) {
+		if ( ! isset( $week['days'] ) || ! is_array( $week['days'] ) ) {
+			continue;
+		}
+		foreach ( $week['days'] as $key => $day ) {
+			unset( $payload['weeks'][ $i ]['days'][ $key ]['inherited'] );
+		}
 	}
 
 	$encoded = function_exists( 'wp_json_encode' ) ? wp_json_encode( $payload ) : json_encode( $payload );
@@ -490,6 +757,18 @@ function jxw_hours_from_legacy_post( $post_id ) {
 /**
  * Always returns a list of time ranges per day, even when only one range exists.
  *
+ * @param mixed       $raw  JSON, array or HTML.
+ * @param string|null $date YYYY-MM-DD to resolve even/odd weeks. Default today.
+ * @return array{days: array<string, array<int, array{from:string,to:string}>>, exceptions: array, applies: string}
+ */
+function jxw_normalize_hours( $raw, $date = null ) {
+	$payload = jxw_coerce_hours_payload( $raw );
+	$date    = is_string( $date ) && jxw_valid_date( $date ) ? $date : jxw_today();
+	$week    = jxw_week_for_date( $payload, $date );
+	$days    = array();
+
+	foreach ( jxw_weekday_keys() as $key ) {
+		$day    = isset( $week['days'][ $key ] ) ? $week['days'][ $key ] : jxw_empty_day();
  * @param mixed $raw JSON, array or HTML.
  * @return array{days: array<string, array<int, array{from:string,to:string}>>, exceptions: array}
  */
@@ -527,6 +806,7 @@ function jxw_normalize_hours( $raw ) {
 	return array(
 		'days'       => $days,
 		'exceptions' => $payload['exceptions'],
+		'applies'    => isset( $week['applies'] ) ? $week['applies'] : 'always',
 	);
 }
 
@@ -710,6 +990,21 @@ function jxw_get_opening_hours_specs( $post_id ) {
 }
 
 /**
+ * Renders one weekday table. CSS classes stay butik-aabentider-tabel, idag, lukket.
+ *
+ * @param array<string, array<string, string>> $days       Day map.
+ * @param string                               $today_key  monday…sunday.
+ * @param bool                                 $mark_today Whether to add idag on today.
+ * @return string
+ */
+function jxw_render_hours_days_table( $days, $today_key, $mark_today ) {
+	$labels = jxw_weekday_labels();
+	$html   = '<table class="butik-aabentider-tabel"><tbody>';
+
+	foreach ( jxw_weekday_keys() as $key ) {
+		$day     = isset( $days[ $key ] ) ? $days[ $key ] : jxw_empty_day();
+		$classes = array();
+		if ( $mark_today && $key === $today_key ) {
  * Renders the hours table. CSS classes stay butik-aabentider-tabel, idag, lukket.
  *
  * Expired exceptions are omitted. Days without times show "–".
@@ -748,6 +1043,39 @@ function jxw_get_hours_table_html( $post_id ) {
 	}
 
 	$html .= '</tbody></table>';
+
+	return $html;
+}
+
+/**
+ * Renders the hours table. CSS classes stay butik-aabentider-tabel, idag, lukket.
+ *
+ * Expired exceptions are omitted. Days without times show "–".
+ * Even/odd shops get one table per week; idag is only on the current ISO week.
+ *
+ * @param int $post_id Post ID.
+ * @return string
+ */
+function jxw_get_hours_table_html( $post_id ) {
+	$post_id   = (int) $post_id;
+	$payload   = jxw_coerce_hours_payload( jxw_get_field( $post_id, 'jxw_hours' ) );
+	$today     = jxw_today();
+	$timestamp = function_exists( 'current_time' ) ? current_time( 'timestamp' ) : time();
+	$week_map  = array( 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday' );
+	$today_key = $week_map[ (int) gmdate( 'w', $timestamp ) ];
+	$parity    = jxw_iso_week_parity( $today );
+	$weeks     = isset( $payload['weeks'] ) ? $payload['weeks'] : array( jxw_empty_week( 'always', $payload['days'] ) );
+	$html      = '';
+
+	foreach ( $weeks as $week ) {
+		$applies    = isset( $week['applies'] ) ? $week['applies'] : 'always';
+		$is_current = ( 'always' === $applies || $applies === $parity );
+		if ( count( $weeks ) > 1 ) {
+			$label = isset( $week['label'] ) ? $week['label'] : jxw_week_label( $applies );
+			$html .= '<h3 class="butik-aabentider-uge">' . esc_html( $label ) . '</h3>';
+		}
+		$html .= jxw_render_hours_days_table( $week['days'], $today_key, $is_current );
+	}
 
 	$visible_exceptions = array();
 	foreach ( $payload['exceptions'] as $ex ) {
@@ -907,6 +1235,16 @@ function jxw_enqueue_hours_admin( $hook ) {
 		JXW_FIELDS_VERSION,
 		true
 	);
+	wp_localize_script(
+		'jxw-hours-admin',
+		'jxwHoursAdmin',
+		array(
+			'alwaysLabel' => __( 'Alle uger', 'dianalund_txtdomain' ),
+			'oddLabel'    => __( 'Ulige uger', 'dianalund_txtdomain' ),
+			'evenLabel'   => __( 'Lige uger', 'dianalund_txtdomain' ),
+			'deleteWeek'  => __( 'Slet uge', 'dianalund_txtdomain' ),
+		)
+	);
 }
 add_action( 'admin_enqueue_scripts', 'jxw_enqueue_hours_admin' );
 
@@ -939,6 +1277,61 @@ function jxw_render_exception_row( $ex, $index ) {
 }
 
 /**
+ * Renders one collapsible week editor.
+ *
+ * @param array $week  Week payload.
+ * @param int   $index Form index.
+ * @param bool  $open  Whether the details element starts open.
+ * @return void
+ */
+function jxw_render_week_editor( $week, $index, $open ) {
+	$labels  = jxw_weekday_labels();
+	$applies = isset( $week['applies'] ) ? $week['applies'] : 'always';
+	$days    = isset( $week['days'] ) ? $week['days'] : jxw_empty_days();
+	$label   = isset( $week['label'] ) ? $week['label'] : jxw_week_label( $applies );
+	$prefix  = 'jxw_hours_weeks[' . (int) $index . ']';
+	?>
+	<details class="jxw-hours-week" data-applies="<?php echo esc_attr( $applies ); ?>" <?php echo $open ? 'open' : ''; ?>>
+		<summary>
+			<strong class="jxw-hours-week-title"><?php echo esc_html( $label ); ?></strong>
+			<span class="jxw-hours-week-summary"><?php echo esc_html( jxw_week_summary_text( $days ) ); ?></span>
+		</summary>
+		<input type="hidden" class="jxw-hours-week-applies" name="<?php echo esc_attr( $prefix ); ?>[applies]" value="<?php echo esc_attr( $applies ); ?>" />
+		<table class="widefat jxw-hours-days">
+			<thead>
+				<tr>
+					<th><?php echo esc_html__( 'Dag', 'dianalund_txtdomain' ); ?></th>
+					<th><?php echo esc_html__( 'Status', 'dianalund_txtdomain' ); ?></th>
+					<th><?php echo esc_html__( 'Fra', 'dianalund_txtdomain' ); ?></th>
+					<th><?php echo esc_html__( 'Til', 'dianalund_txtdomain' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php foreach ( jxw_weekday_keys() as $key ) : ?>
+				<?php $day = isset( $days[ $key ] ) ? $days[ $key ] : jxw_empty_day(); ?>
+				<tr>
+					<th scope="row"><?php echo esc_html( $labels[ $key ] ); ?></th>
+					<td>
+						<select name="<?php echo esc_attr( $prefix ); ?>[days][<?php echo esc_attr( $key ); ?>][status]">
+							<option value="" <?php selected( $day['status'], '' ); ?>><?php echo esc_html__( 'Ikke angivet', 'dianalund_txtdomain' ); ?></option>
+							<option value="open" <?php selected( $day['status'], 'open' ); ?>><?php echo esc_html__( 'Åben', 'dianalund_txtdomain' ); ?></option>
+							<option value="closed" <?php selected( $day['status'], 'closed' ); ?>><?php echo esc_html__( 'Lukket', 'dianalund_txtdomain' ); ?></option>
+						</select>
+					</td>
+					<td><input type="time" name="<?php echo esc_attr( $prefix ); ?>[days][<?php echo esc_attr( $key ); ?>][from]" value="<?php echo esc_attr( $day['from'] ); ?>" /></td>
+					<td><input type="time" name="<?php echo esc_attr( $prefix ); ?>[days][<?php echo esc_attr( $key ); ?>][to]" value="<?php echo esc_attr( $day['to'] ); ?>" /></td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+		<p class="jxw-hours-week-actions">
+			<button type="button" class="button jxw-hours-delete-week"><?php echo esc_html__( 'Slet uge', 'dianalund_txtdomain' ); ?></button>
+		</p>
+	</details>
+	<?php
+}
+
+/**
  * Shop hours metabox: structured days, exceptions, holidays, coordinates.
  * No "Arv fra center" column — the plugin never had center inheritance.
  *
@@ -949,11 +1342,27 @@ function jxw_render_hours_metabox( $post ) {
 	wp_nonce_field( 'jxw_save_hours_' . $post->ID, 'jxw_hours_nonce' );
 
 	$payload  = jxw_coerce_hours_payload( jxw_get_field( $post->ID, 'jxw_hours' ) );
+	$weeks    = isset( $payload['weeks'] ) ? $payload['weeks'] : array( jxw_empty_week( 'always', $payload['days'] ) );
+	$parity   = count( $weeks ) > 1;
 	$labels   = jxw_weekday_labels();
 	$holidays = jxw_get_field( $post->ID, 'jxw_holidays_closed' );
 	$lat      = jxw_get_field( $post->ID, 'jxw_lat' );
 	$lng      = jxw_get_field( $post->ID, 'jxw_lng' );
 	?>
+	<p class="description"><?php echo esc_html__( 'Dage uden tider vises som "–" på forsiden. Lige/ulige uger følger ISO-ugenummeret.', 'dianalund_txtdomain' ); ?></p>
+	<div id="jxw-hours-weeks" class="jxw-hours-weeks" data-parity="<?php echo $parity ? '1' : '0'; ?>">
+		<?php
+		foreach ( $weeks as $i => $week ) {
+			$open = $parity ? ( 0 !== (int) $i ) : false;
+			jxw_render_week_editor( $week, (int) $i, $open );
+		}
+		?>
+	</div>
+	<p>
+		<button type="button" class="button" id="jxw-hours-enable-parity"<?php echo $parity ? ' hidden' : ''; ?>>
+			<?php echo esc_html__( 'Forskellige tider i lige og ulige uger', 'dianalund_txtdomain' ); ?>
+		</button>
+	</p>
 	<p class="description"><?php echo esc_html__( 'Dage uden tider vises som "–" på forsiden. Center-arv findes ikke længere.', 'dianalund_txtdomain' ); ?></p>
 	<table class="widefat jxw-hours-days">
 		<thead>
@@ -1054,6 +1463,14 @@ function jxw_save_hours_from_request( $post_id ) {
 		return;
 	}
 
+	$weeks_in = isset( $posted['jxw_hours_weeks'] ) && is_array( $posted['jxw_hours_weeks'] ) ? $posted['jxw_hours_weeks'] : array();
+	if ( empty( $weeks_in ) && isset( $posted['jxw_hours_days'] ) && is_array( $posted['jxw_hours_days'] ) ) {
+		$weeks_in = array(
+			array(
+				'applies' => 'always',
+				'days'    => $posted['jxw_hours_days'],
+			),
+		);
 	$days = jxw_empty_days();
 	$raw_days = isset( $posted['jxw_hours_days'] ) && is_array( $posted['jxw_hours_days'] ) ? $posted['jxw_hours_days'] : array();
 	foreach ( jxw_weekday_keys() as $key ) {
@@ -1076,6 +1493,7 @@ function jxw_save_hours_from_request( $post_id ) {
 		'jxw_hours',
 		jxw_sanitize_hours_payload(
 			array(
+				'weeks'      => $weeks_in,
 				'days'       => $days,
 				'exceptions' => $exceptions,
 			)
