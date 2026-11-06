@@ -44,6 +44,15 @@
   height: 100%;
 }
 
+.butik-aabentider-uge {
+  margin: 1.25em 0 0.4em;
+  font-size: 1.05em;
+}
+
+.butik-aabentider-uge + .butik-aabentider-tabel {
+  margin-top: 0;
+}
+
 .erhvervsliste-adresse, .erhvervsliste-postnrby {
   padding: 0px 5px;
   margin-top: -30px;

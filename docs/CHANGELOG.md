@@ -35,6 +35,10 @@ Live WordPress med rigtige poster fandtes ikke i dette miljø. Produktion: kør 
 7. **Foreningers tomme postnr/by** viste før 4293/Dianalund som placeholder i formularen. Placeholderen er fjernet; tomme felter er tomme indtil migrering/indtastning.
 8. **Gutenberg-editor** læser logo via det gamle REST-felt; PHP-render bruger `jxw_get_field()`. Sociale URL'er i editor-preview kan være tomme indtil migrering, fordi `register_post_meta` lægger `jxw_*` i `meta`, ikke som top-level REST-felter.
 
+## Uge-mønstre (lige/ulige)
+
+`jxw_hours` kan have `weeks` med `applies`: `always` | `odd` | `even`. Admin: én sammenklappet uge som standard; knappen “Forskellige tider i lige og ulige uger” kopierer til ulige+lige. Slet uge vender tilbage til én uge. Ingen nummerering. Schema `regular` er kun den aktuelle ISO-uge.
+
 ## Rollback
 
 Se `docs/MIGRATION.md`. Tøm `jxw_*` — helperen falder tilbage til de gamle nøgler.
