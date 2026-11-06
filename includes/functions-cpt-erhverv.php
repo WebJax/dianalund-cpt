@@ -237,12 +237,12 @@ function erhverv_quick_edit($column_name, $post_type) {
 add_action('save_post', 'erhverv_quick_edit_data');
  
 function erhverv_quick_edit_data($post_id) {
-    // are we at the correct page
-    if (!is_admin()) {
+    // Quick edit runs in wp-admin. REST saves do not load get_current_screen().
+    if ( ! is_admin() || ! function_exists( 'get_current_screen' ) ) {
       return;
     }
     $screen = get_current_screen();
-    if ($screen->post_type != "erhvervsside") {
+    if ( ! $screen || ! isset( $screen->post_type ) || $screen->post_type != "erhvervsside" ) {
       return;
     }
     // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
